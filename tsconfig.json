@@ -1,0 +1,41 @@
+{
+  "compilerOptions": {
+    "target": "es5",
+    "types": ["node", "cypress", "cypress-react-selector"],
+    "lib": ["es5", "dom", "dom.iterable", "esnext"],
+    "allowJs": true,
+    "skipLibCheck": true,
+    "strict": false,
+    "noEmit": true,
+    "esModuleInterop": true,
+    "module": "esnext",
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "jsx": "preserve",
+    "incremental": true,
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ],
+    "paths": {
+      "@/*": ["./app/*"],
+      "@/components": ["./app/components"],
+      "@/styles/*": ["./app/styles/*"],
+      "@/config/*": ["./app/config/*"]
+    }
+  },
+  "include": [
+    "next-env.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    "**/**/*.ts",
+    "**/**/*.tsx",
+    "cypress/**/*.ts",
+    ".next/types/**/*.ts",
+    ".eslintrc.json",
+    "next.config.js"
+  ],
+  "exclude": ["node_modules"]
+}

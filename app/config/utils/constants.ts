@@ -1,0 +1,12 @@
+const API_VERSION = {
+  V1: 'v1',
+};
+
+const STATUS_CODES = {
+  OK: 200,
+  SERVER_ERROR: 500,
+  BAD_REQUEST: 400,
+  UNAUTHORIZED: 401,
+};
+
+export { API_VERSION, STATUS_CODES };
