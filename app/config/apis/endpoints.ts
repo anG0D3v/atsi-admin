@@ -2,6 +2,6 @@ const Endpoint: (prefix: string) => (endpoint: string) => string =
   (prefix) => (endpoint) =>
     prefix + endpoint;
 
-const UserEndpoint = Endpoint('/v1/user');
+const ApiEndpoint = Endpoint('/v1');
 
-export { UserEndpoint };
+export { ApiEndpoint };

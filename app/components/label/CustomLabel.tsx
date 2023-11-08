@@ -8,7 +8,7 @@ interface labelProps {
   titleLevel?: 1 | 2 | 3 | 4 | 5;
   disabled?: boolean;
   textType?: 'secondary' | 'success' | 'warning' | 'danger';
-  addedClass?: string;
+  classes?: string;
 }
 
 const { Title, Text } = Typography;
@@ -18,14 +18,14 @@ export default function CustomLabel({
   titleLevel,
   disabled,
   textType,
-  addedClass,
+  classes,
 }: labelProps) {
   return variant === 'text' ? (
-    <Text className={clsx(addedClass)} type={textType}>
+    <Text className={clsx(classes)} type={textType}>
       {children}
     </Text>
   ) : (
-    <Title level={titleLevel} className={clsx(addedClass)} disabled={disabled}>
+    <Title level={titleLevel} className={clsx(classes)} disabled={disabled}>
       {children}
     </Title>
   );

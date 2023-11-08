@@ -4,7 +4,7 @@ import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import { getServerSession } from 'next-auth';
 import auth from './api/auth/[...nextauth]/auth';
-import { AuthProvider } from './providers';
+import { AuthProvider, QueryProvider } from './providers';
 import './styles/main.css';
 
 const inter = Inter({ subsets: ['latin'] });
@@ -23,7 +23,9 @@ export default async function RootLayout({
   return (
     <html lang="en">
       <body className={clsx(inter.className, 'bg-[#F9E79F]')}>
-        <AuthProvider session={session}>{children}</AuthProvider>
+        <AuthProvider session={session}>
+          <QueryProvider>{children}</QueryProvider>
+        </AuthProvider>
       </body>
     </html>
   );

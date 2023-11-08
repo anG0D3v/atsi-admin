@@ -48,14 +48,14 @@ export default function Page() {
             children="Auxytech Technology Solutions Inc."
             variant="title"
             titleLevel={2}
-            addedClass="text-center my-10"
+            classes="text-center my-10"
           />
         </div>
 
         <CustomLabel
           children="Login to your account"
           variant="title"
-          addedClass="my-5 text-red-600"
+          classes="my-5 text-red-600"
           titleLevel={4}
         />
 
@@ -80,13 +80,13 @@ export default function Page() {
               />
             </FormItem>
             <CustomButton
-              addedClass="bg-blue-600 w-full p-5 flex items-center justify-center"
+              classes="bg-blue-600 w-full p-5 flex items-center justify-center"
               children="Log In"
               htmlType="submit"
             />
             <CustomButton
-              addedClass=""
-              buttonType="link"
+              classes=""
+              type="link"
               children="Forgot Password?"
               onClick={() => {}}
             />

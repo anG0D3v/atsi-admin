@@ -1,6 +1,7 @@
 import React from 'react';
 import { Avatar } from 'antd';
 import type { AvatarSize } from 'antd/es/avatar/AvatarContext';
+import clsx from 'clsx';
 
 interface IAvatarProps {
   size?: AvatarSize;
@@ -8,18 +9,19 @@ interface IAvatarProps {
   icon?: React.ReactNode;
   alt: string;
   children?: any;
+  classes?: any;
 }
 
 export default function CustomAvatar(props: IAvatarProps) {
   return (
     <Avatar
+      className={clsx(props.classes)}
       size={props.size}
       src={props.url}
+      srcSet={props.url}
       icon={props.icon}
       alt={props.alt}
       {...props}
-    >
-      {props.children}
-    </Avatar>
+    />
   );
 }

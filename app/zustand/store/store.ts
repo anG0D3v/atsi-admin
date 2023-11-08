@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { persist, devtools } from 'zustand/middleware';
-import { createUserSlice } from '../slices';
+import { createUserSlice, createBrandSlice } from '../slices';
+import { type BrandsSlice } from '../slices/brands';
 import { type UserSlice } from '../slices/user';
 
 // const log = (config: any) => (set: any, get: any, api: any) =>
@@ -14,11 +15,19 @@ import { type UserSlice } from '../slices/user';
 //     get,
 //     api,
 //   );
-const useStore = create<UserSlice>()(
+
+type AppSlices = UserSlice & BrandsSlice;
+const useStore = create<AppSlices>()(
   devtools(
-    persist((...args) => ({ ...createUserSlice(...args) }), {
-      name: 'atsi',
-    }),
+    persist(
+      (...args) => ({
+        ...createUserSlice(...args),
+        ...createBrandSlice(...args),
+      }),
+      {
+        name: 'atsi',
+      },
+    ),
   ),
 );
 

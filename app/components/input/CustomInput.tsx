@@ -12,7 +12,7 @@ interface CustomInputProps {
   prefix?: any;
   label?: string;
   error?: string;
-  addedClass?: string;
+  classes?: string;
   labelClass?: string;
   value?: string | undefined;
 }
@@ -27,15 +27,16 @@ const CustomInput = forwardRef<InputRef, CustomInputProps>(
         {props.label && (
           <CustomLabel
             children={props.label}
-            addedClass={clsx(props.labelClass, 'font-semibold')}
+            classes={clsx(props.labelClass, 'font-semibold mb-2')}
             variant="text"
           />
         )}
         {props.type !== 'password' ? (
           <Input
             {...props}
+            maxLength={45}
             ref={ref}
-            className={clsx(props.addedClass)}
+            className={clsx(props.classes)}
             prefix={props.prefix}
             onChange={props.onChange}
             name={props.name}
@@ -45,7 +46,7 @@ const CustomInput = forwardRef<InputRef, CustomInputProps>(
           <Input.Password
             {...props}
             ref={ref}
-            className={clsx(props.addedClass)}
+            className={clsx(props.classes)}
             prefix={props.prefix}
             onChange={props.onChange}
             name={props.name}

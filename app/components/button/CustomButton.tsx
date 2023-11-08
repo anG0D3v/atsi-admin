@@ -1,34 +1,42 @@
 'use client';
 import React from 'react';
 import { Button } from 'antd';
+import { type ButtonType } from 'antd/es/button';
 import clsx from 'clsx';
 
-interface BtnProps {
+interface IBtnProps {
   children: React.ReactNode;
   onClick?: () => void;
-  addedClass?: any;
-  buttonType?: 'primary' | 'dashed' | 'default' | 'link' | 'text';
+  classes?: any;
+  type?: ButtonType;
   htmlType?: 'button' | 'submit' | 'reset';
   loading?: boolean;
+  size?: 'large' | 'small';
+  icon?: React.ReactNode;
+  danger?: boolean;
+  block?: boolean;
 }
 
-function CustomButton({
-  children,
-  onClick,
-  addedClass,
-  buttonType = 'primary',
-  htmlType = 'button',
-  loading = false,
-}: BtnProps) {
+function CustomButton(props: IBtnProps) {
   return (
     <Button
-      loading={loading}
-      htmlType={htmlType}
-      type={buttonType}
-      onClick={onClick}
-      className={clsx(addedClass)}
+      {...props}
+      block={props.block}
+      danger={props.danger}
+      size={props.size}
+      icon={props.icon}
+      loading={props.loading}
+      htmlType={props.htmlType}
+      type={props.type}
+      onClick={props.onClick}
+      className={clsx(
+        props.classes,
+        props.type === 'primary'
+          ? 'bg-blue-600 p-5 flex items-center justify-center'
+          : '',
+      )}
     >
-      {children}
+      {props.children}
     </Button>
   );
 }
