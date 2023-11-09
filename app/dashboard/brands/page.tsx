@@ -1,11 +1,17 @@
 'use client';
-import React, { useCallback, useState, useLayoutEffect } from 'react';
+import React, {
+  useCallback,
+  useState,
+  useLayoutEffect,
+  type ChangeEvent,
+} from 'react';
 import { PlusOutlined } from '@ant-design/icons';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { Form, Image } from 'antd';
+import { Form, Image, Tabs, type TabsProps } from 'antd';
 import { type RcFile } from 'antd/es/upload';
 import _ from 'lodash';
+import Highlighter from 'react-highlight-words';
 import { type SubmitHandler, useForm } from 'react-hook-form';
 import { FormItem } from 'react-hook-form-antd';
 import { PiPlus } from 'react-icons/pi';
@@ -23,7 +29,7 @@ import {
   CustomUploader,
 } from '@/components';
 import { ACTIONS, STATUS } from '@/config/utils/constants';
-import { dateFormatter } from '@/config/utils/util';
+import { dateFormatter, useDebounce } from '@/config/utils/util';
 import { type IBrandDTO } from '@/interfaces/global';
 import { BrandServices } from '@/services';
 import brandValidator from '@/validations/brand';
@@ -40,6 +46,24 @@ type ValidationSchema = z.infer<typeof brandValidator>;
 export default function page() {
   // Initialization
   const [isOpenModal, setIsOpenModal] = useState<boolean>(false);
+  const [filter, setFilter] = useState({
+    name: '',
+    status: '',
+  });
+  const items: TabsProps['items'] = [
+    {
+      key: '',
+      label: 'All',
+    },
+    {
+      key: STATUS.ACTIVE,
+      label: 'Active',
+    },
+    {
+      key: STATUS.INACTIVE,
+      label: 'Inactive',
+    },
+  ];
   const user = useStore(selector('user'));
   const [changeLogo, setChangeLogo] = useState<boolean>(false);
   const { handleSubmit, control, reset, setValue, getValues } =
@@ -64,6 +88,14 @@ export default function page() {
       key: 0,
       dataIndex: 'name',
       title: 'Name',
+      render: (data: string, index: number) => (
+        <Highlighter
+          searchWords={[filter?.name]}
+          autoEscape={true}
+          key={index}
+          textToHighlight={data}
+        />
+      ),
     },
     {
       key: 1,
@@ -133,7 +165,7 @@ export default function page() {
       dataIndex: 'updatedAt',
       title: 'Date Modified',
       render: (data: any, index: number) => (
-        <span key={index}>{dateFormatter(data)}</span>
+        <span key={index}>{!_.isNil(data) ? dateFormatter(data) : 'N/A'}</span>
       ),
     },
     {
@@ -158,15 +190,15 @@ export default function page() {
   ];
 
   const { data: brandsData, isLoading } = useQuery({
-    queryKey: ['brands'],
-    queryFn: async () => await BrandServices.fetchAll(),
+    queryKey: ['brands', filter],
+    queryFn: async () => await BrandServices.fetchAll(filter),
   });
 
   useLayoutEffect(() => {
     if (!isLoading) {
       fetchBrands(brandsData?.data?.data);
     }
-  }, [isLoading]);
+  }, [isLoading, brandsData]);
   const fetchBrands = async (payload: IBrandDTO[]) => {
     loadBrands(payload);
   };
@@ -207,6 +239,21 @@ export default function page() {
     });
   }, []);
 
+  const onSetFilter = useCallback((e: ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFilter((prevState) => ({
+      ...prevState,
+      [name]: value,
+    }));
+  }, []);
+
+  const onChangeTab = (key: string) => {
+    setFilter((prevState) => ({
+      ...prevState,
+      status: key,
+    }));
+  };
+
   const beforeUpload = (file: RcFile) => {
     return false;
   };
@@ -241,7 +288,11 @@ export default function page() {
       const formData = new FormData();
       formData.append('name', data?.name);
       formData.append('description', data?.description);
-      if (typeof data?.logo !== 'string' && 'fileList' in data?.logo) {
+      if (
+        typeof data?.logo !== 'string' &&
+        !_.isNil(data?.logo) &&
+        'fileList' in data?.logo
+      ) {
         formData.append('file', data?.logo?.fileList[0]?.originFileObj);
       }
 
@@ -406,13 +457,15 @@ export default function page() {
           onClick={() => showModal(ACTIONS.ADD)}
         />
       </div>
-
-      <div className="mt-20 space-y-5">
+      <div className="mt-14 space-y-5">
+        <Tabs defaultActiveKey="0" items={items} onChange={onChangeTab} />
         <div className="text-right w-full">
           <CustomInput
             placeholder="Search brand name"
             size="large"
             classes="w-1/4"
+            name="name"
+            onChange={useDebounce(onSetFilter)}
           />
         </div>
         <CustomTable
@@ -434,17 +487,7 @@ export default function page() {
               ? 'Delete a brand'
               : 'Restore a brand'
           }
-          // okText={
-          //   action === ACTIONS.ADD
-          //     ? 'Submit'
-          //     : action === ACTIONS.EDIT
-          //     ? 'Save Changes'
-          //     : 'Delete'
-          // }
-          // onOk={() => console.log('ddf')}
-          // okButtonProps={{ htmlType: 'submit' }}
           footer={null}
-          // okType={action === ACTIONS.DELETE ? 'danger' : 'link'}
           isOpen={isOpenModal}
           children={renderModalContent()}
         />

@@ -1,4 +1,5 @@
 import { notification } from 'antd';
+import { debounce } from 'lodash';
 import moment from 'moment';
 
 const executeOnProcess = async (callback: any) =>
@@ -15,4 +16,6 @@ const customAlert = (key: any, msg: string, description: string) => {
 };
 
 const dateFormatter = (date: any) => moment(date).format('MM / DD / YYYY');
-export { customAlert, dateFormatter, executeOnProcess };
+
+const useDebounce = (func: any) => debounce(func, 1000);
+export { customAlert, dateFormatter, executeOnProcess, useDebounce };

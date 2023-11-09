@@ -68,7 +68,7 @@ const createBrandSlice: StateCreator<BrandsSlice> = (set) => ({
             brands: {
               ...state.brands,
               loading: false,
-              items: [...state.brands.items, response?.data?.data],
+              items: [response?.data?.data, ...state.brands.items],
             },
           }));
           customAlert('success', MESSAGES.SUCCESS, MESSAGES.ADDED);
