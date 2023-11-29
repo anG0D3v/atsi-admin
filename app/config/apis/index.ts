@@ -12,6 +12,13 @@ const Api = {
     UPDATE_BRAND: ApiEndpoint(base + '/update'),
     DELETE_BRAND: ApiEndpoint(base + '/delete'),
   }),
+
+  CATEGORIES: (base = '/categories') => ({
+    ALL: ApiEndpoint(base + '/all'),
+    ADD_CATEGORY: ApiEndpoint(base + '/add'),
+    UPDATE_CATEGORY: ApiEndpoint(base + '/update'),
+    DELETE_CATEGORY: ApiEndpoint(base + '/delete'),
+  }),
 };
 
 export default Api;

@@ -32,6 +32,8 @@ const ACTIONS = {
 const STATUS = {
   ACTIVE: 'Active',
   INACTIVE: 'Inactive',
+  AVAILABLE: 'Available',
+  UNAVAILABLE: 'Unavailable',
 };
 
 export { ACTIONS, API_VERSION, MESSAGES, STATUS, STATUS_CODES };

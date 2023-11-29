@@ -11,6 +11,11 @@ export const {
   addBrand,
   updateBrand,
   deleteBrand,
+  categories,
+  fetchCategories,
+  addCategory,
+  updateCategory,
+  deleteCategory,
 } = storeProvider;
 
 export { selector, storeProvider };

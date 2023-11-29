@@ -1,9 +1,8 @@
 'use client';
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useLayoutEffect, useState } from 'react';
 import { Layout, Menu } from 'antd';
 import type { MenuProps } from 'antd';
-import { useRouter } from 'next/navigation';
-import { BiSolidDashboard } from 'react-icons/bi';
+import { useRouter, usePathname } from 'next/navigation';
 import { BsFillBoxSeamFill } from 'react-icons/bs';
 import { FaUsers } from 'react-icons/fa6';
 import { PiSignOutBold } from 'react-icons/pi';
@@ -32,16 +31,16 @@ function getItem(
   } satisfies MenuItem;
 }
 const items: MenuItem[] = [
-  getItem('Dashboard', '0', <BiSolidDashboard />),
-  getItem('Brands', '1', <TbBrandFramerMotion />),
-  getItem('Categories', '2', <TbCategoryFilled />),
-  getItem('Products', '3', <BsFillBoxSeamFill />),
-  getItem('Users', '4', <FaUsers />),
-  getItem('Web Management', '5', <TbWorldWww />, [
-    getItem('Social Media Accounts', '6'),
-    getItem('Business Information', '7'),
+  // getItem('Dashboard', '0', <BiSolidDashboard />),
+  getItem('Brands', '0', <TbBrandFramerMotion />),
+  getItem('Categories', '1', <TbCategoryFilled />),
+  getItem('Products', '2', <BsFillBoxSeamFill />),
+  getItem('Users', '3', <FaUsers />),
+  getItem('Web Management', '4', <TbWorldWww />, [
+    getItem('Social Media Accounts', '5'),
+    getItem('Business Information', '6'),
   ]),
-  getItem('Sign Out', '8', <PiSignOutBold />),
+  getItem('Sign Out', '7', <PiSignOutBold />),
 ];
 
 interface Props {
@@ -49,20 +48,26 @@ interface Props {
 }
 export default function RootLayout({ children }: Props) {
   const [collapsed, setCollapsed] = useState(false);
+  const pathname = usePathname();
+  const [currentPathname, setCurrentPathname] = useState<string>('');
   const navigate = useRouter();
+
+  useLayoutEffect(() => {
+    setCurrentPathname(pathname);
+  }, [pathname]);
 
   const onSelectMenu = useCallback((item: any) => {
     switch (item?.key) {
-      case '1':
+      case '0':
         navigate.push(Routes.Brands);
         break;
-      case '2':
+      case '1':
         navigate.push(Routes.Categories);
         break;
-      case '3':
+      case '2':
         navigate.push(Routes.Products);
         break;
-      case '4':
+      case '3':
         navigate.prefetch(Routes.Users);
         break;
     }
@@ -103,7 +108,13 @@ export default function RootLayout({ children }: Props) {
             <Menu
               onClick={(item) => onSelectMenu(item)}
               theme="dark"
-              defaultSelectedKeys={['0']}
+              selectedKeys={[
+                currentPathname === Routes.Categories
+                  ? '1'
+                  : currentPathname === Routes.Brands
+                  ? '0'
+                  : '0',
+              ]}
               mode="inline"
               items={items}
             />

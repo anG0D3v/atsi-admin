@@ -1,28 +1,22 @@
 import { create } from 'zustand';
 import { persist, devtools } from 'zustand/middleware';
-import { createUserSlice, createBrandSlice } from '../slices';
+import {
+  createUserSlice,
+  createBrandSlice,
+  createCategoriesSlice,
+} from '../slices';
 import { type BrandsSlice } from '../slices/brands';
+import { type CategoriesSlice } from '../slices/categories';
 import { type UserSlice } from '../slices/user';
 
-// const log = (config: any) => (set: any, get: any, api: any) =>
-//   config(
-//     (...args: any) => {
-//       console.log('  applying', get());
-//       set(...args);
-
-//       console.log('  new state', get());
-//     },
-//     get,
-//     api,
-//   );
-
-type AppSlices = UserSlice & BrandsSlice;
-const useStore = create<AppSlices>()(
+type TAppSlices = UserSlice & BrandsSlice & CategoriesSlice;
+const useStore = create<TAppSlices>()(
   devtools(
     persist(
       (...args) => ({
         ...createUserSlice(...args),
         ...createBrandSlice(...args),
+        ...createCategoriesSlice(...args),
       }),
       {
         name: 'atsi',

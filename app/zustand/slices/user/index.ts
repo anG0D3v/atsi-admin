@@ -48,16 +48,6 @@ const createUserSlice: StateCreator<UserSlice> = (set) => ({
   },
   saveUserInfo: async (payload: any) => {
     try {
-      set((state) => ({
-        ...state,
-        user: {
-          ...state.user,
-          info: null,
-          loading: true,
-          responseMsg: '',
-        },
-      }));
-
       const process = await new Promise((resolve) => {
         setTimeout(() => {
           resolve(true);

@@ -170,6 +170,14 @@ export default function page() {
     },
     {
       key: 8,
+      dataIndex: 'Categories',
+      title: 'No. of Categories',
+      render: (data: any, index: number) => (
+        <span key={index}>{data?.length || 0}</span>
+      ),
+    },
+    {
+      key: 9,
       title: 'Action',
       render: (data: any, index: number) => (
         <div className="flex flex-row items-center gap-2 w-full" key={index}>
@@ -433,8 +441,8 @@ export default function page() {
     <div className="">
       <div className="flex items-center justify-between">
         <div className="w-full flex items-center space-x-3">
-          <div className="p-3 rounded-full bg-gray-500/20 border border-gray-400">
-            <TbBrandFramerMotion size={40} />
+          <div className="p-3 rounded-full bg-blue-500/20 border border-blue-400">
+            <TbBrandFramerMotion size={40} className="text-blue-500" />
           </div>
           <div className="flex flex-col">
             <CustomLabel

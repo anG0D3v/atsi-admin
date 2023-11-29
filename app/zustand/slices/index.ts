@@ -1,4 +1,5 @@
 import createBrandSlice from './brands';
+import createCategoriesSlice from './categories';
 import createUserSlice from './user';
 
-export { createBrandSlice, createUserSlice };
+export { createBrandSlice, createCategoriesSlice, createUserSlice };
