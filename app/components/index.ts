@@ -1,3 +1,4 @@
+import dynamic from 'next/dynamic';
 import CustomAvatar from './avatar/CustomAvatar';
 import CustomButton from './button/CustomButton';
 import CustomNextImage from './image/CustomNextImage';
@@ -9,6 +10,12 @@ import CustomSelect from './select/CustomSelect';
 import CustomTable from './table/CustomTable';
 import CustomTag from './tag/CustomTag';
 import CustomUploader from './uploader/CustomUploader';
+const CustomTextEditor = dynamic(
+  async () => await import('./input/CustomTextEditor'),
+  {
+    ssr: false,
+  },
+);
 
 export {
   CustomAvatar,
@@ -21,5 +28,6 @@ export {
   CustomTable,
   CustomTag,
   CustomTextArea,
+  CustomTextEditor,
   CustomUploader,
 };

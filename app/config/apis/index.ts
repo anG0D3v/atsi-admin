@@ -19,6 +19,13 @@ const Api = {
     UPDATE_CATEGORY: ApiEndpoint(base + '/update'),
     DELETE_CATEGORY: ApiEndpoint(base + '/delete'),
   }),
+
+  PRODUCTS: (base = '/products') => ({
+    ALL: ApiEndpoint(base + '/all'),
+    PRODUCT_INFO_BY_ID: ApiEndpoint(base + '/info/'),
+    ADD_PRODUCT: ApiEndpoint(base + '/add'),
+    UPDATE_PRODUCT: ApiEndpoint(base + '/edit'),
+  }),
 };
 
 export default Api;

@@ -32,8 +32,8 @@ export default function Page() {
     const res = await signIn('credentials', {
       username: data.username,
       password: data.password,
-      callbackUrl: '/',
-      redirect: false,
+      callbackUrl: '/dashboard',
+      redirect: true,
     });
     if (res.error === 'AccessDenied' && res.status === 403) {
       console.log('invalid creds');

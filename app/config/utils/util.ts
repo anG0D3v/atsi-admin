@@ -18,4 +18,19 @@ const customAlert = (key: any, msg: string, description: string) => {
 const dateFormatter = (date: any) => moment(date).format('MM / DD / YYYY');
 
 const useDebounce = (func: any) => debounce(func, 1000);
-export { customAlert, dateFormatter, executeOnProcess, useDebounce };
+
+const currencyFormat = (num: number) => {
+  const formatter = new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'PHP',
+  });
+
+  return formatter.format(num);
+};
+export {
+  currencyFormat,
+  customAlert,
+  dateFormatter,
+  executeOnProcess,
+  useDebounce,
+};

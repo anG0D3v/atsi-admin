@@ -8,13 +8,15 @@ interface CustomInputProps {
   name?: string;
   placeholder?: string;
   onChange?: (e: ChangeEvent<HTMLInputElement>) => void;
-  size?: 'large' | 'small';
+  size?: 'large' | 'small' | 'middle';
   prefix?: any;
   label?: string;
   error?: string;
   classes?: string;
   labelClass?: string;
   value?: string | undefined;
+  min?: number;
+  disabled?: boolean;
 }
 
 // Define a type for the ref that is compatible with forwardRef
@@ -33,6 +35,7 @@ const CustomInput = forwardRef<InputRef, CustomInputProps>(
         )}
         {props.type !== 'password' ? (
           <Input
+            disabled={props.disabled}
             {...props}
             maxLength={45}
             ref={ref}
@@ -41,6 +44,7 @@ const CustomInput = forwardRef<InputRef, CustomInputProps>(
             onChange={props.onChange}
             name={props.name}
             value={props.value}
+            min={props.min}
           />
         ) : (
           <Input.Password

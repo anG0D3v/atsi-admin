@@ -16,12 +16,13 @@ interface ICustomUploaderProps {
   onChange?: (file: UploadChangeParam<UploadFile<any>>) => void;
   fileList?: Array<UploadFile<any>>;
   listType: UploadListType;
-  maxCount: number;
+  maxCount?: number;
   error?: string;
   label: string;
   labelClass?: string;
   children: React.ReactNode;
   name: string;
+  multiple?: boolean;
 }
 
 type UploadRef = React.RefAttributes<typeof Upload> | any;
@@ -47,6 +48,7 @@ const CustomUploader = forwardRef<UploadRef, ICustomUploaderProps>(
             fileList={props.fileList}
             listType={props.listType}
             maxCount={props.maxCount}
+            multiple={props.multiple}
           >
             {props.children}
           </Upload>

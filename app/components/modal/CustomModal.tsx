@@ -28,6 +28,7 @@ export default function CustomModal(props: ICustomModalProps) {
       onCancel={props.onCancel}
       okType={props.okType}
       okButtonProps={props.okButtonProps}
+      className="h-48"
     >
       {props.children}
     </Modal>

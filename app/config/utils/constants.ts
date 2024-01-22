@@ -34,6 +34,7 @@ const STATUS = {
   INACTIVE: 'Inactive',
   AVAILABLE: 'Available',
   UNAVAILABLE: 'Unavailable',
+  OUT_OF_STOCK: 'Out_of_Stock',
 };
 
 export { ACTIONS, API_VERSION, MESSAGES, STATUS, STATUS_CODES };

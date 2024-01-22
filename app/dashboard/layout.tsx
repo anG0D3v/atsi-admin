@@ -113,6 +113,8 @@ export default function RootLayout({ children }: Props) {
                   ? '1'
                   : currentPathname === Routes.Brands
                   ? '0'
+                  : currentPathname === Routes.Products
+                  ? '2'
                   : '0',
               ]}
               mode="inline"

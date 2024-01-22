@@ -15,7 +15,6 @@ function CustomTable(props: ITableProps) {
   return (
     <Table
       columns={props.columns}
-      {...props}
       className={clsx(props.classes)}
       loading={props.loading}
       dataSource={props.datasource}
