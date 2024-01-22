@@ -44,7 +44,7 @@ export default function Page() {
         toast.error(res.error);
       } else {
         toast.success('Login Success!');
-        navigate.push(Routes.Dashboard);
+        navigate.push(Routes.Brands);
       }
     },
 

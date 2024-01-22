@@ -7,7 +7,7 @@ import React, {
 } from 'react';
 import { PlusOutlined } from '@ant-design/icons';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import { Tabs, type TabsProps, Form, Checkbox } from 'antd';
 import { type RcFile } from 'antd/es/upload';
 import _ from 'lodash';
@@ -37,7 +37,11 @@ import { type IProductsDTO } from '@/interfaces/global';
 import { ProductsService } from '@/services';
 import productValidator from '@/validations/product';
 import useStore from '@/zustand/store/store';
-import { loadProducts, selector } from '@/zustand/store/store.provider';
+import {
+  addProduct,
+  loadProducts,
+  selector,
+} from '@/zustand/store/store.provider';
 
 type ValidationSchema = z.infer<typeof productValidator>;
 export default function page() {
@@ -47,26 +51,28 @@ export default function page() {
   const categories = useStore(selector('categories'));
   const products = useStore(selector('products'));
 
-  const { handleSubmit, control } = useForm<ValidationSchema>({
-    defaultValues: {
-      id: '',
-      name: '',
-      description: '',
-      status: '',
-      createdBy: user?.info?.id,
-      updatedBy: '',
-      stock: 0,
-      brandId: '',
-      categoryId: '',
-      lazadaLink: '',
-      shoppeeLink: '',
-      discount: 0,
-      price: 0,
-      isSaleProduct: false,
-      images: [],
+  const { handleSubmit, control, getValues, reset } = useForm<ValidationSchema>(
+    {
+      defaultValues: {
+        id: '',
+        name: '',
+        description: '',
+        status: '',
+        createdBy: user?.info?.id,
+        updatedBy: '',
+        stock: 0,
+        brandId: '',
+        categoryId: '',
+        lazadaLink: '',
+        shoppeeLink: '',
+        discount: 0,
+        price: 0,
+        isSaleProduct: false,
+        images: [],
+      },
+      resolver: zodResolver(productValidator),
     },
-    resolver: zodResolver(productValidator),
-  });
+  );
   const [isOpenModal, setIsOpenModal] = useState<boolean>(false);
   const [action, setAction] = useState(null);
   const [filter, setFilter] = useState({
@@ -109,6 +115,9 @@ export default function page() {
       key: 1,
       dataIndex: 'description',
       title: 'Description',
+      render: (data: any, index: number) => (
+        <div dangerouslySetInnerHTML={{ __html: data }}></div>
+      ),
     },
     {
       key: 2,
@@ -120,11 +129,27 @@ export default function page() {
     },
     {
       key: 3,
+      dataIndex: 'discount',
+      title: 'Discount',
+      render: (data: any, index: number) => (
+        <span key={index}>{data ? `${data}%` : 'No discount'}</span>
+      ),
+    },
+    {
+      key: 4,
+      dataIndex: 'discountedPrice',
+      title: 'Discounted Price',
+      render: (data: any, index: number) => (
+        <span key={index}>{currencyFormat(data)}</span>
+      ),
+    },
+    {
+      key: 5,
       dataIndex: 'status',
       title: 'Status',
     },
     {
-      key: 4,
+      key: 6,
       dataIndex: 'brand',
       title: 'Brand',
       render: (data: any, index: number) => (
@@ -132,7 +157,7 @@ export default function page() {
       ),
     },
     {
-      key: 5,
+      key: 7,
       dataIndex: 'category',
       title: 'Category',
       render: (data: any, index: number) => (
@@ -140,12 +165,12 @@ export default function page() {
       ),
     },
     {
-      key: 6,
+      key: 8,
       dataIndex: 'stock',
       title: 'Stock',
     },
     {
-      key: 7,
+      key: 9,
       dataIndex: 'createdByUser',
       title: 'Added By',
       render: (data: any, index: number) => (
@@ -153,7 +178,7 @@ export default function page() {
       ),
     },
     {
-      key: 8,
+      key: 10,
       dataIndex: 'createdAt',
       title: 'Date Added',
       render: (data: any, index: number) => (
@@ -165,6 +190,38 @@ export default function page() {
   const { data: productsData, isLoading } = useQuery({
     queryKey: ['products', filter],
     queryFn: async () => await ProductsService.fetchAll(filter),
+  });
+
+  const productMutation = useMutation({
+    mutationFn:
+      action === ACTIONS.ADD
+        ? async (info: object) => addProduct(info)
+        : action === ACTIONS.EDIT
+        ? null
+        : null,
+    onSuccess: (response) => {
+      setIsOpenModal(false);
+      reset({
+        id: '',
+        name: '',
+        description: '',
+        status: '',
+        createdBy: user?.info?.id,
+        updatedBy: '',
+        stock: 0,
+        brandId: '',
+        categoryId: '',
+        lazadaLink: '',
+        shoppeeLink: '',
+        discount: 0,
+        price: 0,
+        isSaleProduct: false,
+        images: [],
+      });
+    },
+    onError: (error) => {
+      console.log(error);
+    },
   });
 
   useLayoutEffect(() => {
@@ -211,7 +268,19 @@ export default function page() {
   }, []);
 
   const onSubmit: SubmitHandler<ValidationSchema> = useCallback((data) => {
-    console.log('data:', data);
+    const formData = new FormData();
+    formData.append('name', getValues('name'));
+    formData.append('description', getValues('description'));
+    formData.append('price', getValues('price').toString());
+    formData.append('categoryId', getValues('categoryId'));
+    formData.append('createdBy', getValues('createdBy'));
+    formData.append('brandId', getValues('brandId'));
+    formData.append('stock', getValues('stock').toString());
+    formData.append('shoppeeLink', getValues('shoppeeLink'));
+    formData.append('lazadaLink', getValues('lazadaLink'));
+    formData.append('discount', getValues('discount').toString());
+    formData.append('isSaleProduct', getValues('isSaleProduct').toString());
+    productMutation.mutateAsync(formData);
   }, []);
 
   const beforeUpload = (file: RcFile) => {

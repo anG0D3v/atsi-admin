@@ -18,6 +18,7 @@ export const {
   deleteCategory,
   products,
   loadProducts,
+  addProduct,
 } = storeProvider;
 
 export { selector, storeProvider };

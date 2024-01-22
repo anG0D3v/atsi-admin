@@ -6,11 +6,7 @@ import { useRouter, usePathname } from 'next/navigation';
 import { BsFillBoxSeamFill } from 'react-icons/bs';
 import { FaUsers } from 'react-icons/fa6';
 import { PiSignOutBold } from 'react-icons/pi';
-import {
-  TbBrandFramerMotion,
-  TbCategoryFilled,
-  TbWorldWww,
-} from 'react-icons/tb';
+import { TbBrandFramerMotion, TbCategoryFilled } from 'react-icons/tb';
 import { CustomAvatar, CustomLabel } from '@/components';
 import { Routes } from '@/config/routes/routes';
 const { Sider, Header, Content } = Layout;
@@ -36,11 +32,11 @@ const items: MenuItem[] = [
   getItem('Categories', '1', <TbCategoryFilled />),
   getItem('Products', '2', <BsFillBoxSeamFill />),
   getItem('Users', '3', <FaUsers />),
-  getItem('Web Management', '4', <TbWorldWww />, [
-    getItem('Social Media Accounts', '5'),
-    getItem('Business Information', '6'),
-  ]),
-  getItem('Sign Out', '7', <PiSignOutBold />),
+  // getItem('Web Management', '4', <TbWorldWww />, [
+  //   getItem('Social Media Accounts', '5'),
+  //   getItem('Business Information', '6'),
+  // ]),
+  getItem('Sign Out', '4', <PiSignOutBold />),
 ];
 
 interface Props {

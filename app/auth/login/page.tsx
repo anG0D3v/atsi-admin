@@ -9,6 +9,7 @@ import { useForm, type SubmitHandler } from 'react-hook-form';
 import { FormItem } from 'react-hook-form-antd';
 import type z from 'zod';
 import { CustomButton, CustomInput, CustomLabel } from '@/components';
+import { Routes } from '@/config/routes/routes';
 import { authValidator } from '@/validations/auth';
 import { saveUserInfo } from '@/zustand/store/store.provider';
 
@@ -32,7 +33,7 @@ export default function Page() {
     const res = await signIn('credentials', {
       username: data.username,
       password: data.password,
-      callbackUrl: '/dashboard',
+      callbackUrl: Routes.Brands,
       redirect: true,
     });
     if (res.error === 'AccessDenied' && res.status === 403) {
