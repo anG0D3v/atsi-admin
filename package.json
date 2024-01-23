@@ -3,8 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "start:local": "copy .env.test.example .env.test && env-cmd -f .env.test next dev -H admin-atsi.loc",
-    "dev": "copy .env.test.example .env.test && env-cmd -f .env.test next dev -H admin-atsi.loc",
+    "start:local": "copy .env.development.example .env.development && env-cmd -f .env.development next dev",
+    "dev": "copy .env.development.example .env.development && env-cmd -f .env.development next dev",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",

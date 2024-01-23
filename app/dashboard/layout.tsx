@@ -64,7 +64,7 @@ export default function RootLayout({ children }: Props) {
         navigate.push(Routes.Products);
         break;
       case '3':
-        navigate.prefetch(Routes.Users);
+        navigate.push(Routes.Users);
         break;
     }
   }, []);
