@@ -42,3 +42,14 @@ export interface IProductsDTO {
   media?: [] | object;
   productReviews?: [];
 }
+
+export interface IUserDTO {
+  id:string;
+  email: string;
+  password: string;
+  username:string;
+  status: undefined | 'Active' | 'Inactive' | 'Terminated';
+  createdAt: Date | null;
+  updatedAt: Date | null;
+  type: string;
+}

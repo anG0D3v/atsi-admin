@@ -19,6 +19,8 @@ export const {
   products,
   loadProducts,
   addProduct,
+  fetchUserList,
+  deleteUser
 } = storeProvider;
 
 export { selector, storeProvider };
