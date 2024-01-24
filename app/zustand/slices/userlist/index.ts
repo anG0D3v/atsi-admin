@@ -14,6 +14,8 @@ export interface UserListSlice {
   userList: UserListState | null;
   fetchUserList: (payload: any) => Promise<void>;
   deleteUser: (payload: any) => Promise<void>;
+  addUser: (payload: any) => Promise<void>;
+  updateUser: (payload: any) => Promise<void>;
 }
 
 const initialState: UserListState = {
@@ -101,6 +103,107 @@ const createUserListSlice: StateCreator<UserListSlice> = (set) => ({
           }));
           customAlert('error', MESSAGES.ERROR, error.response.data.message);    
     }
+  },
+  addUser: async (payload) =>{
+    try {
+      set((state) => ({
+        ...state,
+        userList: {
+          ...state.userList,
+          loading: true,
+        },   
+      }))
+      const process = await executeOnProcess(() =>
+      customAlert('info', MESSAGES.PLEASE_WAIT, MESSAGES.EXECUTING_TASK),);
+
+      const response = await UserListSevices.addUser(payload)
+      if (response.status === STATUS_CODES.OK && process) {
+        if (!('message' in response.data)) {
+          set((state) => ({
+            ...state,
+            userList: {
+              ...state.userList,
+              loading: false,
+              list: [response?.data?.data, ...state.userList.list],
+            },
+          }));
+          customAlert('success', MESSAGES.SUCCESS, MESSAGES.ADDED);
+        } else {
+          set((state) => ({
+            ...state,
+            userList: {
+              ...state.userList,
+              loading: false,
+            },
+          }));
+          customAlert('error', MESSAGES.ERROR, response?.data?.message);
+        }
+      }
+      
+    } catch (error) {
+      set((state) => ({
+        userList: {
+          ...state.userList,
+          loading: false,
+          responseMsg: error.response.data.message,
+        },
+      }));
+      customAlert('error', MESSAGES.ERROR, error.response.data.message);     
+    }
+  },
+  updateUser: async(payload) =>{
+    console.log(payload)
+  try {
+        set((state) => ({
+          ...state,
+          userList: {
+            ...state.userList,
+            loading: true,
+          },
+        }));
+    
+        const process = await executeOnProcess(() =>
+          customAlert('info', MESSAGES.PLEASE_WAIT, MESSAGES.EXECUTING_TASK),
+        );
+    
+        const response = await UserListSevices.updateUser(payload)
+        if (response.status === STATUS_CODES.OK && process) {
+          if (!('message' in response.data)) {
+            set((state) => ({
+              ...state,
+              userList: {
+                ...state.userList,
+                loading: false,
+                list: state.userList.list?.map((item) =>
+                  item?.id === response?.data?.data?.id
+                    ? response.data?.data
+                    : item,
+                ),
+              },
+            }));
+            customAlert('success', MESSAGES.SUCCESS, MESSAGES.UPDATE);
+            return response?.data?.data
+          } else {
+            set((state) => ({
+              ...state,
+              userList: {
+                ...state.userList,
+                loading: false,
+              },
+            }));
+            customAlert('error', MESSAGES.ERROR, response?.data?.message);
+          }
+        }
+  } catch (error) {
+    set((state) => ({
+      userList: {
+        ...state.userList,
+        loading: false,
+        responseMsg: error.response.data.message,
+      },
+    }));
+    customAlert('error', MESSAGES.ERROR, error.response.data.message);
+  }
   }
 });
 

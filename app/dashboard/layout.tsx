@@ -1,14 +1,28 @@
 'use client';
 import React, { useCallback, useLayoutEffect, useState } from 'react';
-import { Layout, Menu } from 'antd';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useMutation } from '@tanstack/react-query';
+import { Form, Layout, Menu } from 'antd';
 import type { MenuProps } from 'antd';
 import { useRouter, usePathname } from 'next/navigation';
+import { type SubmitHandler, useForm } from 'react-hook-form';
+import { FormItem } from 'react-hook-form-antd';
 import { BsFillBoxSeamFill } from 'react-icons/bs';
 import { FaUsers } from 'react-icons/fa6';
+import { MdOutlineEdit } from 'react-icons/md';
 import { PiSignOutBold } from 'react-icons/pi';
 import { TbBrandFramerMotion, TbCategoryFilled } from 'react-icons/tb';
-import { CustomAvatar, CustomLabel } from '@/components';
+import { type z } from 'zod';
+import { CustomAvatar, CustomButton, CustomInput, CustomLabel, CustomModal } from '@/components';
 import { Routes } from '@/config/routes/routes';
+import { userUpdateValidator } from '@/validations/user';
+import useStore from '@/zustand/store/store';
+import {
+  saveUserInfo,
+   selector,
+  updateUser
+} from '@/zustand/store/store.provider';
+
 const { Sider, Header, Content } = Layout;
 
 type MenuItem = Required<MenuProps>['items'][number];
@@ -42,11 +56,28 @@ const items: MenuItem[] = [
 interface Props {
   children: React.ReactNode;
 }
+
+type TValidationSchema = z.infer<typeof userUpdateValidator>;
+
 export default function RootLayout({ children }: Props) {
+
   const [collapsed, setCollapsed] = useState(false);
+  const [open, setOpen] = useState(false);
   const pathname = usePathname();
+  const users = useStore(selector('user'));
+  const defaultValues = {
+    id: '',
+    username: '',
+    email: '',
+    password: '',
+  };
   const [currentPathname, setCurrentPathname] = useState<string>('');
   const navigate = useRouter();
+  const { handleSubmit, control, reset, setValue } =
+  useForm<TValidationSchema>({
+    defaultValues,
+    resolver: zodResolver(userUpdateValidator),
+  });
 
   useLayoutEffect(() => {
     setCurrentPathname(pathname);
@@ -68,6 +99,79 @@ export default function RootLayout({ children }: Props) {
         break;
     }
   }, []);
+
+  const showModal = useCallback(() => {
+    setOpen(true);
+    setValue('id',users?.info?.id)
+    setValue('username',users?.info?.username)
+    setValue('email',users?.info?.email)
+  }, []);
+  const onHandleClose = useCallback(() => {
+    setOpen(false);
+    reset(defaultValues);
+  }, []);
+
+  const userMutation = useMutation({
+    mutationFn:
+      async (info: object) => await updateUser(info),
+    onSuccess: (data) => {
+      console.log(data)
+      setOpen(false);
+      saveUserInfo(data)
+      reset(defaultValues);
+    },
+    onError: (error) => {
+      console.log(error);
+    },
+  });
+
+  const onSubmit: SubmitHandler<TValidationSchema> = useCallback(
+    (data) => {
+        userMutation.mutate(data);
+    },
+    [],
+  );
+
+  const renderModalContent = () => (
+    <Form 
+    onFinish={handleSubmit(onSubmit)} 
+    className="mt-5">
+      <FormItem name="username" control={control}>
+        <CustomInput
+          size="large"
+          label="Username"
+          type="text"
+        />
+      </FormItem>
+      <FormItem name="email" control={control}>
+        <CustomInput
+          size="large"
+          label="Email"
+          type="text"
+        />
+      </FormItem>
+      <FormItem name="password" control={control}>
+        <CustomInput
+          size="large"
+          label="Password"
+          type="text"
+          placeholder='Your new password'
+        />
+      </FormItem>
+
+      <Form.Item>
+        <div className="mt-5 p-0 mb-0 w-full flex items-center justify-end">
+          <CustomButton
+            htmlType="submit"
+            loading={users?.loading}
+            type="primary"
+            children={'Save Changes'}
+          />
+        </div>
+      </Form.Item>
+    </Form>
+  );
+  console.log(users)
   return (
     <section>
       <Layout className="h-screen">
@@ -92,11 +196,16 @@ export default function RootLayout({ children }: Props) {
                   children="Welcome,"
                   classes="text-white text-left  text-sm"
                 />
+                <div className='flex gap-4 items-center'>
                 <CustomLabel
                   variant="text"
                   children="John Doe"
                   classes="text-white font-semibold text-2xl m-0 p-0"
                 />
+                <MdOutlineEdit onClick={() => showModal()}
+                 size={25} color='white' className='cursor-pointer' />
+                </div>
+
               </div>
             )}
           </div>
@@ -125,6 +234,14 @@ export default function RootLayout({ children }: Props) {
           </Content>
         </Layout>
       </Layout>
+      <CustomModal
+        onCancel={onHandleClose}
+        title={'Edit your Account Details'
+        }
+        footer={null}
+        isOpen={open}
+        children={renderModalContent()}
+      />
     </section>
   );
 }

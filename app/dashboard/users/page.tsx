@@ -6,7 +6,7 @@ import React, {
   useState,
 } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import { Form, Tabs,  type TabsProps } from 'antd';
 import _ from 'lodash';
 import { type SubmitHandler, useForm } from 'react-hook-form';
@@ -15,24 +15,20 @@ import { BsFileEarmarkPerson } from 'react-icons/bs';
 import { PiPlus } from 'react-icons/pi';
 import { type z } from 'zod';
 import { CustomLabel, CustomButton, CustomInput, CustomTable, CustomTag, CustomModal } from '@/components';
-import { ACTIONS, STATUS } from '@/config/utils/constants';
 import {  useDebounce, dateFormatter } from '@/config/utils/util';
 import { type IUserDTO } from '@/interfaces/global';
 import UserListSevices from '@/services/userList';
 import userValidator from '@/validations/user';
 import useStore from '@/zustand/store/store';
 import {
-  categories,
   fetchUserList, selector,
-  deleteUser
+  deleteUser,
+  addUser
 } from '@/zustand/store/store.provider';
-
 
 type TValidationSchema = z.infer<typeof userValidator>;
 
-
 export default function page() {
-  const [action, setAction] = useState(null);
   const [filter, setFilter] = useState({
     username: '',
     status: '',
@@ -40,13 +36,12 @@ export default function page() {
   });
   const [open, setOpen] = useState(false);
   const users = useStore(selector('userList'));
-  const { handleSubmit, control, reset, setValue, getValues } =
+  const { handleSubmit, control, reset } =
   useForm<TValidationSchema>({
     defaultValues: {
       username:'',
       email:'',
-      password: '',
-      status:''
+      password: ''
     },
     resolver: zodResolver(userValidator),
   });
@@ -66,20 +61,31 @@ export default function page() {
     },
   ];
 
-  const showModal = useCallback((act?: string, data?: any) => {
-    setAction(act);
+  const showModal = useCallback(() => {
     setOpen(true);
-    if (act === ACTIONS.EDIT || act === ACTIONS.DELETE) {
-      console.log(data?.logo);
-      setValue('username', data?.username);
-      setValue('email', data?.email);
-      setValue('password',data?.password);
-    }
   }, []);
+
+  const userMutation = useMutation({
+    mutationFn:
+      async (info: object) => await addUser(info),
+    onSuccess: () => {
+      setOpen(false);
+      reset({
+        username:'',
+        email:'',
+        password: '',
+      });
+    },
+    onError: (error) => {
+      console.log(error);
+    },
+  });
+
   const onSubmit: SubmitHandler<TValidationSchema> = useCallback(
     (data) => {
+        userMutation.mutate(data);
     },
-    [action],
+    [],
   );
 
   const { data: userlistData, isLoading } = useQuery({
@@ -91,8 +97,7 @@ export default function page() {
     reset({
       username:'',
       email:'',
-      password: '',
-      status:''
+      password: ''
     });
   }, []);
 
@@ -123,72 +128,38 @@ export default function page() {
 
   const renderModalContent = () => (
     <Form onFinish={handleSubmit(onSubmit)} className="mt-5">
-      {action !== ACTIONS.DELETE ? (
-        <>
-          <FormItem name="username" control={control}>
-            <CustomInput
-              size="large"
-              label="Username"
-              placeholder="Ex. Johny"
-              type="text"
-            />
-          </FormItem>
-          <FormItem name="email" control={control}>
-            <CustomInput
-              size="large"
-              label="Email"
-              placeholder="Ex. abc@gmail.com"
-              type="text"
-            />
-          </FormItem>
-          <FormItem name="password" control={control}>
-            <CustomInput
-              size="large"
-              label="Password"
-              placeholder="Ex. password"
-              type="text"
-            />
-          </FormItem>
-        </>
-      ) : (
-        <div>
-          <CustomLabel
-            variant="text"
-            children={
-              <span>
-                {' '}
-                Are you sure? Do you really want to{' '}
-                {getValues('status') === STATUS.AVAILABLE
-                  ? 'delete'
-                  : 'restore'}{' '}
-                this category{' '}
-                <span className="font-semibold">{getValues('username')}</span>
-              </span>
-            }
-            classes="text-lg"
-          />
-        </div>
-      )}
+      <FormItem name="username" control={control}>
+        <CustomInput
+          size="large"
+          label="Username"
+          placeholder="Ex. Johny"
+          type="text"
+        />
+      </FormItem>
+      <FormItem name="email" control={control}>
+        <CustomInput
+          size="large"
+          label="Email"
+          placeholder="Ex. abc@gmail.com"
+          type="text"
+        />
+      </FormItem>
+      <FormItem name="password" control={control}>
+        <CustomInput
+          size="large"
+          label="Password"
+          placeholder="Ex. password"
+          type="text"
+        />
+      </FormItem>
 
       <Form.Item>
         <div className="mt-5 p-0 mb-0 w-full flex items-center justify-end">
           <CustomButton
             htmlType="submit"
-            loading={categories?.loading}
+            loading={users?.loading}
             type="primary"
-            danger={
-              action === ACTIONS.DELETE &&
-              getValues('status') === STATUS.AVAILABLE
-            }
-            children={
-              action === ACTIONS.ADD
-                ? 'Submit'
-                : action === ACTIONS.EDIT
-                ? 'Save Changes'
-                : getValues('status') === STATUS.AVAILABLE
-                ? 'Delete'
-                : 'Restore'
-            }
+            children={'Submit'}
           />
         </div>
       </Form.Item>
@@ -273,7 +244,7 @@ export default function page() {
           icon={<PiPlus />}
           size="large"
           children="Add User"
-          onClick={() => showModal(ACTIONS.ADD)}
+          onClick={() => showModal()}
         />
       </div>
       <div className="mt-14 space-y-5">

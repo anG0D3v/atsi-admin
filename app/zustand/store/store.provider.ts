@@ -20,7 +20,9 @@ export const {
   loadProducts,
   addProduct,
   fetchUserList,
-  deleteUser
+  deleteUser,
+  addUser,
+  updateUser
 } = storeProvider;
 
 export { selector, storeProvider };

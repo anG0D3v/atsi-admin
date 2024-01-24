@@ -5,7 +5,9 @@ const Api = {
     LOGIN: ApiEndpoint(base + '/login'),
     GET_BY_EMAIL: ApiEndpoint(base + '/findByEmail'),
     USER_LIST: ApiEndpoint(base + '/fetch'),
-    DELETE_USER: ApiEndpoint(base + '/delete')
+    DELETE_USER: ApiEndpoint(base + '/delete'),
+    ADD_USER: ApiEndpoint(base + '/add'),
+    UPDATE_USER: ApiEndpoint(base + '/update')
   }),
 
   BRAND: (base = '/brands') => ({

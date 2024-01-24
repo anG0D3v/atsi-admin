@@ -1,3 +1,4 @@
+import { signOut } from 'next-auth/react';
 import { type StateCreator } from 'zustand/vanilla';
 import { UserServices } from '@/services';
 
@@ -11,6 +12,7 @@ export interface UserSlice {
   login: (payload: any) => void;
   getUserByEmail: (payload: string) => void;
   saveUserInfo: (payload: any) => void;
+  logout: () => void;
 }
 
 const initialState: UserState = {
@@ -78,6 +80,15 @@ const createUserSlice: StateCreator<UserSlice> = (set) => ({
       }));
     }
   },
+  logout: async() =>{
+    set((state) =>({
+      ...state,
+      user: null,
+    }))
+
+    await signOut({ redirect:false, callbackUrl: '/'})
+  },
+
 });
 
 export default createUserSlice;
