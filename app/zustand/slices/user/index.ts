@@ -1,4 +1,4 @@
-import { signOut } from 'next-auth/react';
+
 import { type StateCreator } from 'zustand/vanilla';
 import { UserServices } from '@/services';
 
@@ -81,12 +81,12 @@ const createUserSlice: StateCreator<UserSlice> = (set) => ({
     }
   },
   logout: async() =>{
-    set((state) =>({
-      ...state,
-      user: null,
-    }))
+    try {
+      set((state) => ({ ...state, user: {...state.user, info:null}}));
+    } catch (error) {
+      console.error('Logout error:', error);
+    }
 
-    await signOut({ redirect:false, callbackUrl: '/'})
   },
 
 });

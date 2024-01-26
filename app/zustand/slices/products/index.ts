@@ -17,7 +17,7 @@ export interface ProductsSlice {
   products: ProductsState | null;
   loadProducts: (payload: any) => void;
   addProduct: (payload: any) => void;
-  //   updateProduct: (payload: any) => void;
+  updateProduct: (payload: any) => void;
   //   deleteProduct: (payload: any) => void;
 }
 
@@ -98,6 +98,39 @@ const createProductsSlice: StateCreator<ProductsSlice> = (set) => ({
       customAlert('error', MESSAGES.ERROR, error.response.data.message);
     }
   },
+  updateProduct: async(payload) =>{
+    try {
+       set((state) => ({
+        ...state,
+        products: {
+          ...state.products,
+          loading: true,
+        },
+      }));
+      const process = await executeOnProcess(() =>
+      customAlert('info', MESSAGES.PLEASE_WAIT, MESSAGES.EXECUTING_TASK),
+    );
+    const response = await ProductsService.updateProduct(payload)     
+    if (response.status === STATUS_CODES.OK && process) {
+      if (!('message' in response.data)) {
+        customAlert('success', MESSAGES.SUCCESS, MESSAGES.ADDED);
+        return response.data.data
+      } else {
+        set((state) => ({
+          ...state,
+          products: {
+            ...state.products,
+            loading: false,
+          },
+        }));
+        customAlert('error', MESSAGES.ERROR, response?.data?.message);
+        return null;
+      }
+    }    
+    } catch (error) {
+      console.log(error)
+    }
+  }
 });
 
 export default createProductsSlice;

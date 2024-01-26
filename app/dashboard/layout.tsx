@@ -5,6 +5,7 @@ import { useMutation } from '@tanstack/react-query';
 import { Form, Layout, Menu } from 'antd';
 import type { MenuProps } from 'antd';
 import { useRouter, usePathname } from 'next/navigation';
+import { signOut } from 'next-auth/react';
 import { type SubmitHandler, useForm } from 'react-hook-form';
 import { FormItem } from 'react-hook-form-antd';
 import { BsFillBoxSeamFill } from 'react-icons/bs';
@@ -83,6 +84,16 @@ export default function RootLayout({ children }: Props) {
     setCurrentPathname(pathname);
   }, [pathname]);
 
+  const handleSignOut = async () => {
+    try {
+      await signOut({ redirect: true, callbackUrl: '/' }); // Adjust the callbackUrl as needed
+      // Additional cleanup or navigation logic can be added here
+    } catch (error) {
+      console.error('Signout error:', error);
+      // Handle error as needed
+    }
+  };
+  
   const onSelectMenu = useCallback((item: any) => {
     switch (item?.key) {
       case '0':
@@ -97,6 +108,12 @@ export default function RootLayout({ children }: Props) {
       case '3':
         navigate.push(Routes.Users);
         break;
+        case '4':
+          handleSignOut();
+          break;
+        // Add more cases as needed
+        default:
+          break;
     }
   }, []);
 
@@ -115,7 +132,6 @@ export default function RootLayout({ children }: Props) {
     mutationFn:
       async (info: object) => await updateUser(info),
     onSuccess: (data) => {
-      console.log(data)
       setOpen(false);
       saveUserInfo(data)
       reset(defaultValues);
@@ -131,7 +147,7 @@ export default function RootLayout({ children }: Props) {
     },
     [],
   );
-
+console.log(users)
   const renderModalContent = () => (
     <Form 
     onFinish={handleSubmit(onSubmit)} 
@@ -171,7 +187,6 @@ export default function RootLayout({ children }: Props) {
       </Form.Item>
     </Form>
   );
-  console.log(users)
   return (
     <section>
       <Layout className="h-screen">
@@ -220,7 +235,8 @@ export default function RootLayout({ children }: Props) {
                   ? '0'
                   : currentPathname === Routes.Products
                   ? '2'
-                  : '0',
+                  : currentPathname === Routes.Users
+                  ? '3' : '0',
               ]}
               mode="inline"
               items={items}

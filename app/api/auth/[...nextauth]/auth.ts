@@ -13,7 +13,6 @@ const auth: NextAuthOptions = {
         username: { label: 'username', type: 'text' },
         password: { label: 'password', type: 'password' },
       },
-
       async authorize(credentials) {
         try {
           const response = await UserServices.login({
@@ -45,6 +44,7 @@ const auth: NextAuthOptions = {
   },
   pages: {
     signIn: '/auth/login',
+    signOut: '/auth/logout'
   },
   callbacks: {
     async signIn({ user, account, profile, email, credentials }) {

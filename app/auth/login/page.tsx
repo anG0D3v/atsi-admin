@@ -20,14 +20,12 @@ export default function Page() {
   const { handleSubmit, control } = useForm<ValidationSchema>({
     resolver: zodResolver(authValidator),
   });
-
   useLayoutEffect(() => {
     if (session) {
       // This will saved the user info in state management
       saveUserInfo(session?.data);
     }
   }, [session]);
-
   // Functions
   const onSubmit: SubmitHandler<ValidationSchema> = async (data) => {
     const res = await signIn('credentials', {

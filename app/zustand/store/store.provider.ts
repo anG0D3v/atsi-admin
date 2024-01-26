@@ -22,7 +22,9 @@ export const {
   fetchUserList,
   deleteUser,
   addUser,
-  updateUser
+  updateUser,
+  logout,
+  updateProduct
 } = storeProvider;
 
 export { selector, storeProvider };

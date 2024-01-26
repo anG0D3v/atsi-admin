@@ -436,7 +436,7 @@ export default function page() {
       </Form.Item>
     </Form>
   );
-
+console.log(user)
   return (
     <div className="">
       <div className="flex items-center justify-between">

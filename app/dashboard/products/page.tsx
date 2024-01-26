@@ -41,6 +41,7 @@ import {
   addProduct,
   loadProducts,
   selector,
+  updateProduct
 } from '@/zustand/store/store.provider';
 
 type ValidationSchema = z.infer<typeof productValidator>;
@@ -51,7 +52,7 @@ export default function page() {
   const categories = useStore(selector('categories'));
   const products = useStore(selector('products'));
 
-  const { handleSubmit, control, getValues, reset } = useForm<ValidationSchema>(
+  const { handleSubmit, control, getValues, reset,setValue } = useForm<ValidationSchema>(
     {
       defaultValues: {
         id: '',
@@ -185,6 +186,19 @@ export default function page() {
         <span key={index}>{dateFormatter(data)}</span>
       ),
     },
+    {
+      key: 11,
+      title: 'Action',
+      render: (data: any, index: number) => (
+        <div className="flex flex-row items-center gap-2 w-full" key={index}>
+          <CustomButton
+            type="primary"
+            children="Edit"
+            onClick={() => showModal(ACTIONS.EDIT,data)}
+          />
+        </div>
+      ),
+    },
   ];
 
   const { data: productsData, isLoading } = useQuery({
@@ -197,7 +211,7 @@ export default function page() {
       action === ACTIONS.ADD
         ? async (info: object) => addProduct(info)
         : action === ACTIONS.EDIT
-        ? null
+        ? async (info: object) => updateProduct(info)
         : null,
     onSuccess: (response) => {
       setIsOpenModal(false);
@@ -234,9 +248,26 @@ export default function page() {
   };
 
   // Functions
-  const showModal = useCallback((act: string) => {
+  const showModal = useCallback((act: string,data?: any) => {
     setAction(act);
     setIsOpenModal(true);
+    if(act === ACTIONS.EDIT){
+      setValue('id',data?.id)
+      setValue('name',data?.name)
+      setValue('description',data?.description)
+      setValue('status',data?.status)
+      setValue('createdBy',data?.createdBy)
+      setValue('updatedBy',data?.updatedBy)
+      setValue('stock',data?.stock)
+      setValue('brandId',data?.brandId)
+      setValue('categoryId',data?.categoryId)
+      setValue('lazadaLink',data?.lazadaLink)
+      setValue('shoppeeLink',data?.shoppeeLink)
+      setValue('discount',data?.discount)
+      setValue('price',data?.price)
+      setValue('isSaleProduct',data?.isSaleProduct)
+      setValue('images',data?.images)
+    }
   }, []);
 
   const onChangeTab = (key: string) => {
@@ -256,15 +287,23 @@ export default function page() {
 
   const onHandleClose = useCallback(() => {
     setIsOpenModal(false);
-    // reset({
-    //   id: '',
-    //   name: '',
-    //   description: '',
-    //   status: '',
-    //   logo: [],
-    //   createdBy: user?.info?.id,
-    //   updatedBy: '',
-    // });
+    reset({
+      id: '',
+      name: '',
+      description: '',
+      status: '',
+      createdBy: user?.info?.id,
+      updatedBy: '',
+      stock: 0,
+      brandId: '',
+      categoryId: '',
+      lazadaLink: '',
+      shoppeeLink: '',
+      discount: 0,
+      price: 0,
+      isSaleProduct: false,
+      images: [],
+    });
   }, []);
 
   const onSubmit: SubmitHandler<ValidationSchema> = useCallback((data) => {
@@ -290,7 +329,7 @@ export default function page() {
   // Rendered Components
   const renderModalContent = () => (
     <Form onFinish={handleSubmit(onSubmit)} className="mt-5">
-      <FormItem name="images" control={control}>
+      {action === ACTIONS.ADD && <FormItem name="images" control={control}>
         <CustomUploader
           name="images"
           beforeUpload={(file) => beforeUpload(file)}
@@ -304,7 +343,7 @@ export default function page() {
             <CustomLabel variant="text" children="Upload" />
           </div>
         </CustomUploader>
-      </FormItem>
+      </FormItem>}
       <FormItem name="name" control={control}>
         <CustomInput
           size="large"

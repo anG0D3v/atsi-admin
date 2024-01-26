@@ -29,7 +29,6 @@ export default function Page() {
       saveUserInfo(session?.data);
     }
   }, [session]);
-
   // Functions
   const onSubmit: SubmitHandler<ValidationSchema> = useCallback(
     async (data) => {
@@ -39,6 +38,7 @@ export default function Page() {
         callbackUrl: '/',
         redirect: false,
       });
+      console.log(res)
       if (res.error === 'AccessDenied' && res.status === 403) {
         saveUserInfo(res.error);
         toast.error(res.error);
@@ -50,6 +50,7 @@ export default function Page() {
 
     [user],
   );
+  console.log(user)
   return (
     <div className="flex flex-row h-screen items-center justify-center relative max-xl:p-10">
       <Toaster />
