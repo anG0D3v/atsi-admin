@@ -147,7 +147,6 @@ export default function RootLayout({ children }: Props) {
     },
     [],
   );
-console.log(users)
   const renderModalContent = () => (
     <Form 
     onFinish={handleSubmit(onSubmit)} 

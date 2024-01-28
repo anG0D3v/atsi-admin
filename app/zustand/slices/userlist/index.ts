@@ -65,7 +65,7 @@ const createUserListSlice: StateCreator<UserListSlice> = (set) => ({
             if (!('message' in response.data)) {
               set((state) => ({
                 ...state,
-                categories: {
+                userList: {
                   ...state.userList,
                   loading: false,
                   list: state.userList.list?.map((item) =>
@@ -152,7 +152,6 @@ const createUserListSlice: StateCreator<UserListSlice> = (set) => ({
     }
   },
   updateUser: async(payload) =>{
-    console.log(payload)
   try {
         set((state) => ({
           ...state,

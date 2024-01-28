@@ -249,6 +249,7 @@ export default function page() {
 
   // Functions
   const showModal = useCallback((act: string,data?: any) => {
+    console.log(data)
     setAction(act);
     setIsOpenModal(true);
     if(act === ACTIONS.EDIT){
@@ -266,7 +267,7 @@ export default function page() {
       setValue('discount',data?.discount)
       setValue('price',data?.price)
       setValue('isSaleProduct',data?.isSaleProduct)
-      setValue('images',data?.images)
+      setValue('images',data?.media)
     }
   }, []);
 
@@ -307,7 +308,9 @@ export default function page() {
   }, []);
 
   const onSubmit: SubmitHandler<ValidationSchema> = useCallback((data) => {
+    console.log(data)
     const formData = new FormData();
+    const images = getValues('images');
     formData.append('name', getValues('name'));
     formData.append('description', getValues('description'));
     formData.append('price', getValues('price').toString());
@@ -319,17 +322,23 @@ export default function page() {
     formData.append('lazadaLink', getValues('lazadaLink'));
     formData.append('discount', getValues('discount').toString());
     formData.append('isSaleProduct', getValues('isSaleProduct').toString());
+    if (images?.fileList?.length > 0) {
+      images.fileList.forEach((file: string | Blob, index: any) => {
+        formData.append(`file[${index}]`, file);
+      });
+    }
     productMutation.mutateAsync(formData);
   }, []);
 
   const beforeUpload = (file: RcFile) => {
+    console.log(file)
     return false;
   };
 
   // Rendered Components
   const renderModalContent = () => (
-    <Form onFinish={handleSubmit(onSubmit)} className="mt-5">
-      {action === ACTIONS.ADD && <FormItem name="images" control={control}>
+    <Form onFinish={handleSubmit(onSubmit)} className="mt-5"> 
+      <FormItem name="images" control={control}>
         <CustomUploader
           name="images"
           beforeUpload={(file) => beforeUpload(file)}
@@ -340,10 +349,10 @@ export default function page() {
         >
           <div className="flex flex-col items-center justify-center">
             <PlusOutlined />
-            <CustomLabel variant="text" children="Upload" />
+            <CustomLabel variant="text" children={action === ACTIONS.EDIT ? 'Add Images' : 'Upload'} />
           </div>
         </CustomUploader>
-      </FormItem>}
+      </FormItem>
       <FormItem name="name" control={control}>
         <CustomInput
           size="large"
@@ -440,6 +449,8 @@ export default function page() {
       </Form.Item>
     </Form>
   );
+  console.log(getValues())
+  console.log(brands)
   return (
     <div>
       <div className="flex items-center justify-between">
@@ -498,6 +509,7 @@ export default function page() {
           footer={null}
           isOpen={isOpenModal}
           children={renderModalContent()}
+          
         />
       </div>
     </div>
