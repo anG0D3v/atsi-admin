@@ -191,7 +191,7 @@ export default function RootLayout({ children }: Props) {
       <Layout className="h-screen">
         <Sider
           collapsible
-          className="relative"
+          className="relative overflow-auto h-screen fixed"
           width={250}
           collapsed={collapsed}
           onCollapse={(value) => setCollapsed(value)}

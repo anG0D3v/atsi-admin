@@ -249,7 +249,6 @@ export default function page() {
 
   // Functions
   const showModal = useCallback((act: string,data?: any) => {
-    console.log(data)
     setAction(act);
     setIsOpenModal(true);
     if(act === ACTIONS.EDIT){
@@ -258,13 +257,13 @@ export default function page() {
       setValue('description',data?.description)
       setValue('status',data?.status)
       setValue('createdBy',data?.createdBy)
-      setValue('updatedBy',data?.updatedBy)
+      setValue('updatedBy',user?.info?.id)
       setValue('stock',data?.stock)
       setValue('brandId',data?.brandId)
       setValue('categoryId',data?.categoryId)
-      setValue('lazadaLink',data?.lazadaLink)
-      setValue('shoppeeLink',data?.shoppeeLink)
-      setValue('discount',data?.discount)
+      setValue('lazadaLink',data?.lazadaLink ? data.lazadaLink : '')
+      setValue('shoppeeLink',data?.shoppeeLink ? data.shoppeeLink : '')
+      setValue('discount',data?.discount ? data?.discount : 0)
       setValue('price',data?.price)
       setValue('isSaleProduct',data?.isSaleProduct)
       setValue('images',data?.media)
@@ -308,27 +307,30 @@ export default function page() {
   }, []);
 
   const onSubmit: SubmitHandler<ValidationSchema> = useCallback((data) => {
-    console.log(data)
     const formData = new FormData();
     const images = getValues('images');
+    if (action === ACTIONS.ADD) {
+      formData.append('createdBy', data?.createdBy);
+    } else if (action === ACTIONS.EDIT || action === ACTIONS.DELETE) {
+      formData.append('id', data?.id);
+      formData.append('updatedBy', data?.updatedBy);
+    }
     formData.append('name', getValues('name'));
     formData.append('description', getValues('description'));
     formData.append('price', getValues('price').toString());
     formData.append('categoryId', getValues('categoryId'));
-    formData.append('createdBy', getValues('createdBy'));
     formData.append('brandId', getValues('brandId'));
     formData.append('stock', getValues('stock').toString());
     formData.append('shoppeeLink', getValues('shoppeeLink'));
     formData.append('lazadaLink', getValues('lazadaLink'));
-    formData.append('discount', getValues('discount').toString());
     formData.append('isSaleProduct', getValues('isSaleProduct').toString());
-    if (images?.fileList?.length > 0) {
-      images.fileList.forEach((file: string | Blob, index: any) => {
-        formData.append(`file[${index}]`, file);
-      });
-    }
+    // eslint-disable-next-line array-callback-return
+    images?.fileList?.map((file: { originFileObj: string | Blob; }) => {
+      formData.append('file', file?.originFileObj)
+    })
+  
     productMutation.mutateAsync(formData);
-  }, []);
+  }, [action, getValues, productMutation, setAction]);
 
   const beforeUpload = (file: RcFile) => {
     console.log(file)
@@ -450,9 +452,10 @@ export default function page() {
     </Form>
   );
   console.log(getValues())
-  console.log(brands)
+  console.log(action)
+  console.log(ACTIONS)
   return (
-    <div>
+    <div className='h-max'>
       <div className="flex items-center justify-between">
         <div className="w-full flex items-center space-x-3">
           <div className="p-3 rounded-full bg-blue-500/20 border border-blue-400">

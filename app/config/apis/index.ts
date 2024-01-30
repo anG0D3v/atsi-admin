@@ -28,7 +28,7 @@ const Api = {
     ALL: ApiEndpoint(base + '/all'),
     PRODUCT_INFO_BY_ID: ApiEndpoint(base + '/info/'),
     ADD_PRODUCT: ApiEndpoint(base + '/add'),
-    UPDATE_PRODUCT: ApiEndpoint(base + '/edit'),
+    UPDATE_PRODUCT: ApiEndpoint(base + '/update'),
   }),
 
 };

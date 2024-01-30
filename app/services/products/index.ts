@@ -17,7 +17,7 @@ const ProductsServices = {
     await axiosInstance.post(Api.PRODUCTS().ADD_PRODUCT, data),
   updateProduct: async (data: any) =>
     await axiosInstance.put(
-      Api.PRODUCTS().UPDATE_PRODUCT + `/${data?.id}`,
+      Api.PRODUCTS().UPDATE_PRODUCT + `/${data?.get('id')}`,
       data,
     ),
 };
