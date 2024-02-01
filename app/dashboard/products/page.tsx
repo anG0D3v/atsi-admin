@@ -8,7 +8,7 @@ import React, {
 import { PlusOutlined } from '@ant-design/icons';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { Tabs, type TabsProps, Form, Checkbox } from 'antd';
+import { Tabs, type TabsProps, Form, Checkbox, Image} from 'antd';
 import { type RcFile } from 'antd/es/upload';
 import _ from 'lodash';
 import Highlighter from 'react-highlight-words';
@@ -75,6 +75,8 @@ export default function page() {
     },
   );
   const [isOpenModal, setIsOpenModal] = useState<boolean>(false);
+  const [listFile,setListFile] = useState([]);
+  const [selectedImages, setSelectedImages] = useState([]);
   const [action, setAction] = useState(null);
   const [filter, setFilter] = useState({
     name: '',
@@ -196,6 +198,12 @@ export default function page() {
             children="Edit"
             onClick={() => showModal(ACTIONS.EDIT,data)}
           />
+          <CustomButton
+             type="dashed"
+             danger
+            children="Delete Images"
+            onClick={() => showModal(ACTIONS.DELETE,data)}
+          />
         </div>
       ),
     },
@@ -252,6 +260,7 @@ export default function page() {
     setAction(act);
     setIsOpenModal(true);
     if(act === ACTIONS.EDIT){
+      console.log(data)
       setValue('id',data?.id)
       setValue('name',data?.name)
       setValue('description',data?.description)
@@ -267,6 +276,9 @@ export default function page() {
       setValue('price',data?.price)
       setValue('isSaleProduct',data?.isSaleProduct)
       setValue('images',data?.media)
+    }
+    if(act === ACTIONS.DELETE){
+      setListFile(data?.media)
     }
   }, []);
 
@@ -333,13 +345,27 @@ export default function page() {
   }, [action, getValues, productMutation, setAction]);
 
   const beforeUpload = (file: RcFile) => {
-    console.log(file)
     return false;
+  };
+  const handleImageSelect = (image: any) => {
+    const selectedIndex = selectedImages.indexOf(image);
+    const newSelectedImages = [...selectedImages];
+
+    if (selectedIndex === -1) {
+      // Image not selected, add to the list
+      newSelectedImages.push(image);
+    } else {
+      // Image already selected, remove from the list
+      newSelectedImages.splice(selectedIndex, 1);
+    }
+
+    setSelectedImages(newSelectedImages);
   };
 
   // Rendered Components
   const renderModalContent = () => (
     <Form onFinish={handleSubmit(onSubmit)} className="mt-5"> 
+      {action !== ACTIONS.DELETE ? (<div>
       <FormItem name="images" control={control}>
         <CustomUploader
           name="images"
@@ -434,7 +460,6 @@ export default function page() {
       <FormItem name="isSaleProduct" control={control}>
         <Checkbox>Is sale product?</Checkbox>
       </FormItem>
-
       <Form.Item>
         <div className="mt-5 p-0 mb-0 w-full flex items-center justify-end">
           <CustomButton
@@ -449,11 +474,44 @@ export default function page() {
           />
         </div>
       </Form.Item>
+      </div>) : (
+      <>
+        {listFile.length > 0 ? (<div>
+          <Image.PreviewGroup
+            preview={{
+              onChange: (current, prev) => console.log(`current index: ${current}, prev index: ${prev}`),
+            }}
+          
+          >
+            <div className='flex flex-wrap gap-8'>
+            {listFile?.map((data, idx) => (
+              <div key={idx} className='basis-[30%]'>
+                <Checkbox
+                  checked={selectedImages.includes(data)}
+                  onChange={() => handleImageSelect(data)}
+                />
+                <Image width={'100%'} height={110} src={process.env.BASE_IMAGE_URL + data.url} />
+              </div>
+            ))}
+            </div>
+
+          </Image.PreviewGroup>
+          {selectedImages.length > 0 && (
+            <div className="mt-5 p-0 mb-0 w-full flex items-center justify-end">
+            <CustomButton
+              htmlType="submit"
+              loading={products?.loading}
+              type="primary"
+              children={'Delete Selected Images'}
+            />
+            </div>
+          )}
+        </div>) : (<p>No Images being saved</p>)}
+      </>
+      )}
+
     </Form>
   );
-  console.log(getValues())
-  console.log(action)
-  console.log(ACTIONS)
   return (
     <div className='h-max'>
       <div className="flex items-center justify-between">
@@ -507,7 +565,7 @@ export default function page() {
               ? 'Add Product'
               : _.isEqual(action, ACTIONS.EDIT)
               ? 'Edit a Product'
-              : 'Delete a Product'
+              : 'Delete a Images'
           }
           footer={null}
           isOpen={isOpenModal}

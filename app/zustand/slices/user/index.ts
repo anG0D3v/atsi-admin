@@ -83,7 +83,7 @@ const createUserSlice: StateCreator<UserSlice> = (set) => ({
   logout: async() =>{
     try {
       set((state: UserSlice) => ({
-        user: initialState, // Resetting to the initial state
+        user: initialState, 
       }));
     } catch (error) {
       console.error('Logout error:', error);
