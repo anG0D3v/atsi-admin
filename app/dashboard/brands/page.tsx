@@ -31,7 +31,7 @@ import {
 import { ACTIONS, STATUS } from '@/config/utils/constants';
 import { dateFormatter, useDebounce } from '@/config/utils/util';
 import { type IBrandDTO } from '@/interfaces/global';
-import { BrandServices } from '@/services';
+import { BrandServices, CategoryServices } from '@/services';
 import brandValidator from '@/validations/brand';
 import useStore from '@/zustand/store/store';
 import {
@@ -40,6 +40,7 @@ import {
   addBrand,
   updateBrand,
   deleteBrand,
+  fetchCategories,
 } from '@/zustand/store/store.provider';
 
 type ValidationSchema = z.infer<typeof brandValidator>;
@@ -197,16 +198,21 @@ export default function page() {
     },
   ];
 
-  const { data: brandsData, isLoading } = useQuery({
+  const { data: brandsData, isLoading:isLoading1 } = useQuery({
     queryKey: ['brands', filter],
     queryFn: async () => await BrandServices.fetchAll(filter),
   });
-
+  const { data: categoryData, isLoading: isLoading2 } = useQuery({
+    queryKey: ['category'],
+    queryFn: async () => await CategoryServices.fetchAll(),
+  });
+ console.log(categoryData)
   useLayoutEffect(() => {
-    if (!isLoading) {
+    if (!isLoading1) {
       fetchBrands(brandsData?.data?.data);
+      fetchCategories(categoryData?.data?.data)
     }
-  }, [isLoading, brandsData]);
+  }, [isLoading1, brandsData,isLoading1,isLoading2]);
   const fetchBrands = async (payload: IBrandDTO[]) => {
     loadBrands(payload);
   };
@@ -478,8 +484,8 @@ console.log(user)
         </div>
         <CustomTable
           columns={columns}
-          loading={isLoading}
-          datasource={!isLoading ? brands?.items : []}
+          loading={isLoading1}
+          datasource={!isLoading1 ? brands?.items : []}
         />
       </div>
 

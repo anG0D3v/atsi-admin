@@ -47,7 +47,6 @@ const createUserListSlice: StateCreator<UserListSlice> = (set) => ({
     }
   },
   deleteUser: async (payload) =>{
-    console.log(payload)
     try {
         set((state) => ({
             ...state,

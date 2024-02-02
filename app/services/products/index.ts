@@ -20,6 +20,11 @@ const ProductsServices = {
       Api.PRODUCTS().UPDATE_PRODUCT + `/${data?.get('id')}`,
       data,
     ),
+    deleteProductImg: async (data: any) => 
+     await axiosInstance.delete(
+        Api.PRODUCTS().DELETE_IMAGES + `/${data?.get('id')}`,
+        {data}
+      )
 };
 
 export default ProductsServices;

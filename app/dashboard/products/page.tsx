@@ -7,7 +7,7 @@ import React, {
 } from 'react';
 import { PlusOutlined } from '@ant-design/icons';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery,useQueryClient } from '@tanstack/react-query';
 import { Tabs, type TabsProps, Form, Checkbox, Image} from 'antd';
 import { type RcFile } from 'antd/es/upload';
 import _ from 'lodash';
@@ -39,6 +39,7 @@ import productValidator from '@/validations/product';
 import useStore from '@/zustand/store/store';
 import {
   addProduct,
+  deleteProductImg,
   loadProducts,
   selector,
   updateProduct
@@ -51,7 +52,7 @@ export default function page() {
   const brands = useStore(selector('brands'));
   const categories = useStore(selector('categories'));
   const products = useStore(selector('products'));
-
+  const queryClient = useQueryClient();
   const { handleSubmit, control, getValues, reset,setValue } = useForm<ValidationSchema>(
     {
       defaultValues: {
@@ -76,6 +77,7 @@ export default function page() {
   );
   const [isOpenModal, setIsOpenModal] = useState<boolean>(false);
   const [listFile,setListFile] = useState([]);
+  const [productId,setProductId] = useState('')
   const [selectedImages, setSelectedImages] = useState([]);
   const [action, setAction] = useState(null);
   const [filter, setFilter] = useState({
@@ -220,7 +222,7 @@ export default function page() {
         ? async (info: object) => addProduct(info)
         : action === ACTIONS.EDIT
         ? async (info: object) => updateProduct(info)
-        : null,
+        : async (info: object) => deleteProductImg(info),
     onSuccess: (response) => {
       setIsOpenModal(false);
       reset({
@@ -240,6 +242,8 @@ export default function page() {
         isSaleProduct: false,
         images: [],
       });
+      setSelectedImages([])
+      queryClient.invalidateQueries({ queryKey: ['products'] });
     },
     onError: (error) => {
       console.log(error);
@@ -278,9 +282,11 @@ export default function page() {
       setValue('images',data?.media)
     }
     if(act === ACTIONS.DELETE){
+      console.log(data?.media)
       setListFile(data?.media)
+      setProductId(data?.id)
     }
-  }, []);
+  }, [action]);
 
   const onChangeTab = (key: string) => {
     setFilter((prevState) => ({
@@ -320,27 +326,26 @@ export default function page() {
 
   const onSubmit: SubmitHandler<ValidationSchema> = useCallback((data) => {
     const formData = new FormData();
-    const images = getValues('images');
-    if (action === ACTIONS.ADD) {
-      formData.append('createdBy', data?.createdBy);
-    } else if (action === ACTIONS.EDIT || action === ACTIONS.DELETE) {
-      formData.append('id', data?.id);
-      formData.append('updatedBy', data?.updatedBy);
-    }
-    formData.append('name', getValues('name'));
-    formData.append('description', getValues('description'));
-    formData.append('price', getValues('price').toString());
-    formData.append('categoryId', getValues('categoryId'));
-    formData.append('brandId', getValues('brandId'));
-    formData.append('stock', getValues('stock').toString());
-    formData.append('shoppeeLink', getValues('shoppeeLink'));
-    formData.append('lazadaLink', getValues('lazadaLink'));
-    formData.append('isSaleProduct', getValues('isSaleProduct').toString());
-    // eslint-disable-next-line array-callback-return
-    images?.fileList?.map((file: { originFileObj: string | Blob; }) => {
-      formData.append('file', file?.originFileObj)
-    })
-  
+      if (action === ACTIONS.ADD) {
+        formData.append('createdBy', data?.createdBy);
+      } else if (action === ACTIONS.EDIT) {
+        formData.append('id', data?.id);
+        formData.append('updatedBy', data?.updatedBy);
+      }
+      const images = getValues('images');
+      formData.append('name', getValues('name'));
+      formData.append('description', getValues('description'));
+      formData.append('price', getValues('price').toString());
+      formData.append('categoryId', getValues('categoryId'));
+      formData.append('brandId', getValues('brandId'));
+      formData.append('stock', getValues('stock').toString());
+      formData.append('shoppeeLink', getValues('shoppeeLink'));
+      formData.append('lazadaLink', getValues('lazadaLink'));
+      formData.append('isSaleProduct', getValues('isSaleProduct').toString());
+      // eslint-disable-next-line array-callback-return
+      images?.fileList?.map((file: { originFileObj: string | Blob; }) => {
+        formData.append('file', file?.originFileObj)
+      })
     productMutation.mutateAsync(formData);
   }, [action, getValues, productMutation, setAction]);
 
@@ -350,17 +355,23 @@ export default function page() {
   const handleImageSelect = (image: any) => {
     const selectedIndex = selectedImages.indexOf(image);
     const newSelectedImages = [...selectedImages];
-
     if (selectedIndex === -1) {
-      // Image not selected, add to the list
       newSelectedImages.push(image);
     } else {
-      // Image already selected, remove from the list
       newSelectedImages.splice(selectedIndex, 1);
     }
-
     setSelectedImages(newSelectedImages);
   };
+  const handleDeleteImages = () =>{
+    const formData = new FormData();
+      selectedImages?.forEach((fileId) => {
+         formData.append(`mediaIds[]`,fileId.id)
+      })
+      formData.append('id',productId)
+      formData.append('userId',user?.info?.id)
+      formData.append('updatedBy',user?.info?.id)
+      productMutation.mutateAsync(formData);
+  }
 
   // Rendered Components
   const renderModalContent = () => (
@@ -476,7 +487,7 @@ export default function page() {
       </Form.Item>
       </div>) : (
       <>
-        {listFile.length > 0 ? (<div>
+        {listFile?.length > 0 ? (<div>
           <Image.PreviewGroup
             preview={{
               onChange: (current, prev) => console.log(`current index: ${current}, prev index: ${prev}`),
@@ -499,7 +510,8 @@ export default function page() {
           {selectedImages.length > 0 && (
             <div className="mt-5 p-0 mb-0 w-full flex items-center justify-end">
             <CustomButton
-              htmlType="submit"
+              htmlType="button"
+              onClick={handleDeleteImages}
               loading={products?.loading}
               type="primary"
               children={'Delete Selected Images'}
@@ -512,6 +524,8 @@ export default function page() {
 
     </Form>
   );
+  console.log(categories)
+  console.log(user)
   return (
     <div className='h-max'>
       <div className="flex items-center justify-between">

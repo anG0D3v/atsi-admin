@@ -2,7 +2,7 @@ import Api from '@/config/apis';
 import axiosInstance from '@/config/axios/axiosInstance';
 
 const CategoriesServices = {
-  fetchAll: async (data: any) =>
+  fetchAll: async (data?: any) =>
     await axiosInstance.get(
       Api.CATEGORIES().ALL + `?name=${data?.name}&status=${data?.status}`,
     ),

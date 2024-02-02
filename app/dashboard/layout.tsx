@@ -5,7 +5,6 @@ import { useMutation } from '@tanstack/react-query';
 import { Form, Layout, Menu } from 'antd';
 import type { MenuProps } from 'antd';
 import { useRouter, usePathname } from 'next/navigation';
-import { signOut } from 'next-auth/react';
 import { type SubmitHandler, useForm } from 'react-hook-form';
 import { FormItem } from 'react-hook-form-antd';
 import { BsFillBoxSeamFill } from 'react-icons/bs';
@@ -19,6 +18,7 @@ import { Routes } from '@/config/routes/routes';
 import { userUpdateValidator } from '@/validations/user';
 import useStore from '@/zustand/store/store';
 import {
+  logout,
   saveUserInfo,
    selector,
   updateUser
@@ -86,8 +86,9 @@ export default function RootLayout({ children }: Props) {
 
   const handleSignOut = async () => {
     try {
-      await signOut({ redirect: true, callbackUrl: '/' }); // Adjust the callbackUrl as needed
-      // Additional cleanup or navigation logic can be added here
+      logout()
+      navigate.push('/')
+      
     } catch (error) {
       console.error('Signout error:', error);
       // Handle error as needed
@@ -111,7 +112,6 @@ export default function RootLayout({ children }: Props) {
         case '4':
           handleSignOut();
           break;
-        // Add more cases as needed
         default:
           break;
     }

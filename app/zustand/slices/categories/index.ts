@@ -111,7 +111,6 @@ const createCategoriesSlice: StateCreator<CategoriesSlice> = (set) => ({
       );
 
       const response = await CategoriesServices.updateCategory(payload);
-      console.log(response);
       if (response.status === STATUS_CODES.OK && process) {
         if (!('message' in response.data)) {
           set((state) => ({
