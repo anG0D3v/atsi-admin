@@ -44,7 +44,7 @@ const auth: NextAuthOptions = {
   },
   pages: {
     signIn: '/auth/login',
-    signOut: '/auth/logout'
+    signOut: '/auth/logout',
   },
   callbacks: {
     async signIn({ user, account, profile, email, credentials }) {

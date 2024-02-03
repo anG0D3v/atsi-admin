@@ -12,7 +12,7 @@ const nextConfig = {
   },
   env: {
     API_URL: process.env.NEXT_PUBLIC_API_URL,
-    AUTH_SECRET: process.env.NEXTAUTH_SECRET,
+    NEXTAUTH_SECRET: process.env.NEXTAUTH_SECRET,
     BASE_IMAGE_URL: process.env.NEXT_PUBLIC_STORAGE_ACCESS_ENDPOINT,
   },
 };
