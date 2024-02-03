@@ -188,10 +188,10 @@ export default function RootLayout({ children }: Props) {
   );
   return (
     <section>
-      <Layout className="h-screen">
+      <Layout className="h-max min-h-screen">
         <Sider
           collapsible
-          className="relative overflow-auto h-screen fixed"
+          className="relative overflow-auto h-auto fixed"
           width={250}
           collapsed={collapsed}
           onCollapse={(value) => setCollapsed(value)}
@@ -200,8 +200,9 @@ export default function RootLayout({ children }: Props) {
             <CustomAvatar
               size={collapsed ? 60 : 100}
               alt="profile"
-              classes="border border-2 border-white mt-5"
-              url="https://file.xunruicms.com/admin_html/assets/pages/media/profile/profile_user.jpg"
+              classes="border border-2 border-white mt-5 object-contain"
+              url={'/assets/logo1.png'}
+              shape='circle'
             />
             {!collapsed && (
               <div className="w-full flex flex-col items-center justify-center">
@@ -213,7 +214,7 @@ export default function RootLayout({ children }: Props) {
                 <div className='flex gap-4 items-center'>
                 <CustomLabel
                   variant="text"
-                  children="John Doe"
+                  children={users?.info?.username}
                   classes="text-white font-semibold text-2xl m-0 p-0"
                 />
                 <MdOutlineEdit onClick={() => showModal()}

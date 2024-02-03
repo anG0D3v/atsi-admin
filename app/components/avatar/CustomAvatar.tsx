@@ -10,6 +10,7 @@ interface IAvatarProps {
   alt: string;
   children?: any;
   classes?: any;
+  shape?:'circle' | 'square';
 }
 
 export default function CustomAvatar(props: IAvatarProps) {
@@ -20,6 +21,7 @@ export default function CustomAvatar(props: IAvatarProps) {
       src={props.url}
       srcSet={props.url}
       icon={props.icon}
+      shape={props.shape}
       alt={props.alt}
       {...props}
     />

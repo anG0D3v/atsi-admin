@@ -22,7 +22,7 @@ export default async function RootLayout({
   const session = await getServerSession(auth);
   return (
     <html lang="en">
-       <link rel="icon" type="image/png" href="assets/logo.png" sizes="32x32" />
+     <link rel="icon" type="image/png" href={`/logo.png `}/>
       <body className={clsx(inter.className, 'bg-[#F9E79F]')}>
         <AuthProvider session={session}>
           <QueryProvider>{children}</QueryProvider>

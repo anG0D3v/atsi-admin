@@ -8,7 +8,7 @@ import React, {
 import { PlusOutlined } from '@ant-design/icons';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation, useQuery,useQueryClient } from '@tanstack/react-query';
-import { Tabs, type TabsProps, Form, Checkbox, Image} from 'antd';
+import { Tabs, type TabsProps, Form, Checkbox, Image, Flex,type RadioChangeEvent} from 'antd';
 import { type RcFile } from 'antd/es/upload';
 import _ from 'lodash';
 import Highlighter from 'react-highlight-words';
@@ -27,6 +27,7 @@ import {
   CustomTextEditor,
   CustomUploader,
 } from '@/components';
+import CustomRadio from '@/components/CustomRadio/customRadio';
 import { ACTIONS, STATUS } from '@/config/utils/constants';
 import {
   currencyFormat,
@@ -53,13 +54,13 @@ export default function page() {
   const categories = useStore(selector('categories'));
   const products = useStore(selector('products'));
   const queryClient = useQueryClient();
-  const { handleSubmit, control, getValues, reset,setValue } = useForm<ValidationSchema>(
+  const { handleSubmit, control, getValues, reset,setValue, watch } = useForm<ValidationSchema>(
     {
       defaultValues: {
         id: '',
         name: '',
         description: '',
-        status: '',
+        status: 'Available',
         createdBy: user?.info?.id,
         updatedBy: '',
         stock: 0,
@@ -210,7 +211,7 @@ export default function page() {
       ),
     },
   ];
-
+  const status = watch('status');
   const { data: productsData, isLoading } = useQuery({
     queryKey: ['products', filter],
     queryFn: async () => await ProductsService.fetchAll(filter),
@@ -259,6 +260,11 @@ export default function page() {
     loadProducts(payload);
   };
 
+  const onChange = (e: RadioChangeEvent) => {
+    console.log('radio checked', e.target.value);
+    setValue('status',e.target.value);
+  };
+
   // Functions
   const showModal = useCallback((act: string,data?: any) => {
     setAction(act);
@@ -286,6 +292,7 @@ export default function page() {
       setListFile(data?.media)
       setProductId(data?.id)
     }
+    console.log(data)
   }, [action]);
 
   const onChangeTab = (key: string) => {
@@ -341,6 +348,7 @@ export default function page() {
       formData.append('stock', getValues('stock').toString());
       formData.append('shoppeeLink', getValues('shoppeeLink'));
       formData.append('lazadaLink', getValues('lazadaLink'));
+      formData.append('status', getValues('status'));
       formData.append('isSaleProduct', getValues('isSaleProduct').toString());
       // eslint-disable-next-line array-callback-return
       images?.fileList?.map((file: { originFileObj: string | Blob; }) => {
@@ -471,6 +479,16 @@ export default function page() {
       <FormItem name="isSaleProduct" control={control}>
         <Checkbox>Is sale product?</Checkbox>
       </FormItem>
+      <FormItem name="status" control={control}>
+        
+        <Flex vertical gap="middle">
+        <CustomRadio
+          onChange={(e) =>onChange(e)}
+          choices={['Available','Unavailable','Out of Stock']}
+          value={status}
+        />
+        </Flex>
+      </FormItem>
       <Form.Item>
         <div className="mt-5 p-0 mb-0 w-full flex items-center justify-end">
           <CustomButton
@@ -524,8 +542,7 @@ export default function page() {
 
     </Form>
   );
-  console.log(categories)
-  console.log(user)
+  console.log(getValues('status'))
   return (
     <div className='h-max'>
       <div className="flex items-center justify-between">

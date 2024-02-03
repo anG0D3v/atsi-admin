@@ -51,6 +51,7 @@ export default function page() {
     name: '',
     status: '',
   });
+
   const items: TabsProps['items'] = [
     {
       key: '',
@@ -82,6 +83,7 @@ export default function page() {
     });
 
   const brands = useStore(selector('brands'));
+  const category = useStore(selector('categories'));
 
   const [action, setAction] = useState<string>(ACTIONS.ADD);
   const columns = [
@@ -442,7 +444,7 @@ export default function page() {
       </Form.Item>
     </Form>
   );
-console.log(user)
+console.log(category)
   return (
     <div className="">
       <div className="flex items-center justify-between">

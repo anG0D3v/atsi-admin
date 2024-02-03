@@ -4,7 +4,7 @@ import axiosInstance from '@/config/axios/axiosInstance';
 const CategoriesServices = {
   fetchAll: async (data?: any) =>
     await axiosInstance.get(
-      Api.CATEGORIES().ALL + `?name=${data?.name}&status=${data?.status}`,
+      Api.CATEGORIES().ALL + `?name=${data?.name ? data?.name : ''}&status=${data?.status ? data?.status : ''}`,
     ),
   addCategory: async (data: any) =>
     await axiosInstance.post(Api.CATEGORIES().ADD_CATEGORY, data),
