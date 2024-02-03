@@ -37,4 +37,41 @@ const STATUS = {
   OUT_OF_STOCK: 'Out_of_Stock',
 };
 
-export { ACTIONS, API_VERSION, MESSAGES, STATUS, STATUS_CODES };
+const QUILL_FORMATS = [
+  'header',
+  'font',
+  'size',
+  'bold',
+  'italic',
+  'underline',
+  'strike',
+  'blockquote',
+  'list',
+  'bullet',
+  'link',
+];
+
+const QUILL_MODULES = {
+  toolbar: [
+    [{ header: '1' }, { header: '2' }, { font: [] }],
+    [{ size: [] }],
+    ['bold', 'italic', 'underline', 'strike', 'blockquote'],
+    [{ list: 'ordered' }, { list: 'bullet' }],
+    ['link'],
+    ['clean'],
+  ],
+  clipboard: {
+    // toggle to add extra line breaks when pasting HTML:
+    matchVisual: false,
+  },
+};
+
+export {
+  ACTIONS,
+  API_VERSION,
+  MESSAGES,
+  QUILL_FORMATS,
+  QUILL_MODULES,
+  STATUS,
+  STATUS_CODES,
+};
