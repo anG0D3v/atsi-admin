@@ -2,8 +2,8 @@ import React, { type ChangeEvent } from 'react';
 import clsx from 'clsx';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
+import { QUILL_FORMATS, QUILL_MODULES } from '../../config/utils/constants';
 import CustomLabel from '../label/CustomLabel';
-import { QUILL_FORMATS, QUILL_MODULES } from '@/config/utils/constants';
 
 interface ICustomTextEditorProps {
   onChange?: (e: ChangeEvent<HTMLInputElement> | any) => void;
