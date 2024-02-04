@@ -24,7 +24,7 @@ interface ICustomSelectProps {
 function CustomSelect(props: ICustomSelectProps) {
   const { Option } = Select;
   return (
-    <div className="w-full">
+    <div className="w-full flex flex-col">
       {props.label && (
         <CustomLabel
           children={props.label}
@@ -40,11 +40,12 @@ function CustomSelect(props: ICustomSelectProps) {
         mode={props.mode}
         allowClear={props.allowClear}
         className={props.className}
+        size='large'
         // filterOption={(input, option) =>
         //   option.children.toLowerCase().includes(input.toLowerCase())
         // }
       >
-        {props.items.map((item) => (
+        {props.items?.map((item) => (
           <Option value={item[props.renderValue]} key={item[props.renderKey]}>
             {item[props.renderText]}
           </Option>

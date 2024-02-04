@@ -8,7 +8,7 @@ import React, {
 import { PlusOutlined } from '@ant-design/icons';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation, useQuery,useQueryClient } from '@tanstack/react-query';
-import { Tabs, type TabsProps, Form, Checkbox, Image, Flex,type RadioChangeEvent} from 'antd';
+import { Tabs, type TabsProps, Form, Checkbox, Image, Flex,type RadioChangeEvent, Select} from 'antd';
 import { type RcFile } from 'antd/es/upload';
 import _ from 'lodash';
 import Highlighter from 'react-highlight-words';
@@ -31,7 +31,6 @@ import CustomRadio from '@/components/CustomRadio/customRadio';
 import { ACTIONS, STATUS } from '@/config/utils/constants';
 import {
   currencyFormat,
-  dateFormatter,
   useDebounce,
 } from '@/config/utils/util';
 import { type IProductsDTO } from '@/interfaces/global';
@@ -78,12 +77,14 @@ export default function page() {
   );
   const [isOpenModal, setIsOpenModal] = useState<boolean>(false);
   const [listFile,setListFile] = useState([]);
-  const [productId,setProductId] = useState('')
+  const [productId,setProductId] = useState('');
   const [selectedImages, setSelectedImages] = useState([]);
   const [action, setAction] = useState(null);
   const [filter, setFilter] = useState({
     name: '',
     status: '',
+    brandId:'',
+    categoryId:''
   });
   const items: TabsProps['items'] = [
     {
@@ -153,6 +154,9 @@ export default function page() {
       key: 5,
       dataIndex: 'status',
       title: 'Status',
+      render:(data:any,index:number) =>(
+        <span key={index}>{data === 'Out_of_Stock' ? data.replace(/_/g, ' ') : data}</span>
+      )
     },
     {
       key: 6,
@@ -185,14 +189,6 @@ export default function page() {
     },
     {
       key: 10,
-      dataIndex: 'createdAt',
-      title: 'Date Added',
-      render: (data: any, index: number) => (
-        <span key={index}>{dateFormatter(data)}</span>
-      ),
-    },
-    {
-      key: 11,
       title: 'Action',
       render: (data: any, index: number) => (
         <div className="flex flex-row items-center gap-2 w-full" key={index}>
@@ -211,6 +207,7 @@ export default function page() {
       ),
     },
   ];
+
   const status = watch('status');
   const { data: productsData, isLoading } = useQuery({
     queryKey: ['products', filter],
@@ -261,7 +258,6 @@ export default function page() {
   };
 
   const onChange = (e: RadioChangeEvent) => {
-    console.log('radio checked', e.target.value);
     setValue('status',e.target.value);
   };
 
@@ -292,7 +288,6 @@ export default function page() {
       setListFile(data?.media)
       setProductId(data?.id)
     }
-    console.log(data)
   }, [action]);
 
   const onChangeTab = (key: string) => {
@@ -379,6 +374,11 @@ export default function page() {
       formData.append('userId',user?.info?.id)
       formData.append('updatedBy',user?.info?.id)
       productMutation.mutateAsync(formData);
+  }
+  const handleSelection = (data:{value:string},fieldName:string) =>{
+    setFilter((prev) =>({
+      ...prev,[fieldName]: data.value
+    }))
   }
 
   // Rendered Components
@@ -542,7 +542,6 @@ export default function page() {
 
     </Form>
   );
-  console.log(getValues('status'))
   return (
     <div className='h-max'>
       <div className="flex items-center justify-between">
@@ -573,14 +572,38 @@ export default function page() {
       </div>
       <div className="mt-14 space-y-5">
         <Tabs defaultActiveKey="0" items={items} onChange={onChangeTab} />
-        <div className="text-right w-full">
-          <CustomInput
-            placeholder="Search brand name"
-            size="large"
-            classes="w-1/4"
-            name="name"
-            onChange={useDebounce(onSetFilter)}
-          />
+        <div className="w-full">
+          <div className='flex justify-between items-end gap-8 flex-wrap'>
+            <div className='flex gap-4 flex-1'>
+            <Select
+              value={filter.brandId ? filter.brandId : 'Select Brand'}
+              onChange={(value) =>{handleSelection({value},'brandId')}}
+              optionLabelProp='label'
+              size='large'
+              className='w-max min-w-60'
+              options={(brands?.items?.map((option: { id: any; name: any; }) => ({value: option.id,label:option.name})))}
+            />
+            <Select
+              value={filter.categoryId ? filter.categoryId : 'Select Category'}
+              onChange={(value) =>{handleSelection({value},'categoryId')}}
+              optionLabelProp='label'
+              size='large'
+              className='w-max min-w-60'
+              options={(categories?.items?.map((option: { id: any; name: any; }) => ({value: option.id,label:option.name})))}
+            />
+            </div>
+            <div className='grow'>
+            <CustomInput
+              placeholder="Search brand name"
+              size="large"
+              classes="w-full"
+              name="name"
+              onChange={useDebounce(onSetFilter)}
+            />
+            </div>
+
+          </div>
+
         </div>
         <CustomTable
           columns={columns}
