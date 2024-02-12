@@ -244,6 +244,7 @@ export default function page() {
     ...data,
     key:data.id
   }))
+  console.log(action)
   return (
     <div>
       <div className="flex items-center justify-between">
