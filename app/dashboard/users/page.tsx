@@ -12,9 +12,12 @@ import _ from 'lodash';
 import { type SubmitHandler, useForm } from 'react-hook-form';
 import { FormItem } from 'react-hook-form-antd';
 import { BsFileEarmarkPerson } from 'react-icons/bs';
+import { MdDelete } from 'react-icons/md';
 import { PiPlus } from 'react-icons/pi';
+import { RiDeleteBin5Fill } from 'react-icons/ri';
 import { type z } from 'zod';
 import { CustomLabel, CustomButton, CustomInput, CustomTable, CustomTag, CustomModal } from '@/components';
+import { ACTIONS } from '@/config/utils/constants';
 import {  useDebounce, dateFormatter } from '@/config/utils/util';
 import { type IUserDTO } from '@/interfaces/global';
 import UserListSevices from '@/services/userList';
@@ -36,6 +39,8 @@ export default function page() {
   });
   const [open, setOpen] = useState(false);
   const users = useStore(selector('userList'));
+  const [action, setAction] = useState<string>(ACTIONS.ADD);
+  const [selectedRowKeys, setSelectedRowKeys] = useState([]);
   const { handleSubmit, control, reset } =
   useForm<TValidationSchema>({
     defaultValues: {
@@ -61,8 +66,9 @@ export default function page() {
     },
   ];
 
-  const showModal = useCallback(() => {
+  const showModal = useCallback((act:string) => {
     setOpen(true);
+    setAction(act)
   }, []);
 
   const userMutation = useMutation({
@@ -215,10 +221,29 @@ export default function page() {
             children={data.status === 'Active' ? 'Active' : 'Inactive'}
             onClick={async() => await deleteUser(data)}
           />
+          <CustomButton
+            type="dashed"
+            danger
+            children={<RiDeleteBin5Fill />}
+            onClick={async() => await deleteUser(data)}
+          />
         </div>
       ),
     },
   ];
+
+  const onSelectChange = (selectedRows: any) => {
+    setSelectedRowKeys(selectedRows);
+  };
+
+  const rowSelection = {
+    selectedRowKeys,
+    onChange: onSelectChange
+  };
+  const userData = users?.list?.map(data => ({
+    ...data,
+    key:data.id
+  }))
   return (
     <div>
       <div className="flex items-center justify-between">
@@ -244,24 +269,36 @@ export default function page() {
           icon={<PiPlus />}
           size="large"
           children="Add User"
-          onClick={() => showModal()}
+          onClick={() => showModal(ACTIONS.ADD)}
         />
       </div>
       <div className="mt-14 space-y-5">
         <Tabs defaultActiveKey="0" items={items} onChange={onChangeTab} />
-        <div className="text-right w-full">
-          <CustomInput
-            placeholder="Search Username"
+        <div className="flex relative w-full">
+          {selectedRowKeys.length > 0 &&
+            <CustomButton
+            icon={<MdDelete />}
             size="large"
-            classes="w-1/4"
-            name="username"
+            danger
+            children="Delete Selected"
+            onClick={() => showModal(ACTIONS.MULTIDELETE)}
+          />
+          }
+          <div className='w-full flex justify-end text-right'>
+          <CustomInput
+            placeholder="Search brand name"
+            size="large"
+            classes="w-52"
+            name="name"
             onChange={useDebounce(onSetFilter)}
           />
+          </div>
         </div>
         <CustomTable
           columns={columns}
           loading={isLoading}
-          datasource={!isLoading ? users?.list : []}
+          datasource={!isLoading ? userData : []}
+          rowSelection={rowSelection}
         />
       </div>
       <CustomModal

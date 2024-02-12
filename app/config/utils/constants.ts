@@ -27,6 +27,8 @@ const ACTIONS = {
   ADD: 'add',
   EDIT: 'edit',
   DELETE: 'delete',
+  RESTORE: 'restore',
+  MULTIDELETE: 'multiDelete'
 };
 
 const STATUS = {

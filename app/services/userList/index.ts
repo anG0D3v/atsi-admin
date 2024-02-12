@@ -13,7 +13,9 @@ const UserListSevices = {
     addUser: async (data:any) =>
     await axiosInstance.post(Api.USER().ADD_USER, data),
     updateUser: async (data:any) =>
-    await axiosInstance.put(Api.USER().UPDATE_USER + `/${data?.id}`, data)
+    await axiosInstance.put(Api.USER().UPDATE_USER + `/${data?.id}`, data),
+    restoreUser: async(data:any) =>
+    await axiosInstance.put(Api.USER().RESTORE_USER,data)
 }
 
 export default UserListSevices;

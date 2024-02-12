@@ -15,9 +15,14 @@ const BrandServices = {
     ),
   deleteBrand: async (data: any) =>
     await axiosInstance.delete(
-      Api.BRAND().DELETE_BRAND + `/${data?.get('id')}`,
+      Api.BRAND().DELETE_BRAND,
       { data },
     ),
+  restoreBrand: async(data:any) =>
+  await axiosInstance.put(
+    Api.BRAND().RESTORE_BRAND,
+    data
+  )
 };
 
 export default BrandServices;

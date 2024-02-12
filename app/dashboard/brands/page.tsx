@@ -7,13 +7,14 @@ import React, {
 } from 'react';
 import { PlusOutlined } from '@ant-design/icons';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useMutation, useQuery } from '@tanstack/react-query';
-import { Form, Image, Tabs, type TabsProps } from 'antd';
+import { useMutation, useQuery,useQueryClient } from '@tanstack/react-query';
+import { Form, Image, Tabs, type TabsProps, type TableColumnsType  } from 'antd';
 import { type RcFile } from 'antd/es/upload';
 import _ from 'lodash';
 import Highlighter from 'react-highlight-words';
 import { type SubmitHandler, useForm } from 'react-hook-form';
 import { FormItem } from 'react-hook-form-antd';
+import { MdDelete } from 'react-icons/md';
 import { PiPlus } from 'react-icons/pi';
 import { TbBrandFramerMotion } from 'react-icons/tb';
 import { type z } from 'zod';
@@ -41,6 +42,7 @@ import {
   updateBrand,
   deleteBrand,
   fetchCategories,
+  restoreBrand,
 } from '@/zustand/store/store.provider';
 
 type ValidationSchema = z.infer<typeof brandValidator>;
@@ -67,8 +69,9 @@ export default function page() {
     },
   ];
   const user = useStore(selector('user'));
+  const queryClient = useQueryClient();
   const [changeLogo, setChangeLogo] = useState<boolean>(false);
-  const { handleSubmit, control, reset, setValue, getValues } =
+  const { handleSubmit, control, reset, setValue, getValues} =
     useForm<ValidationSchema>({
       defaultValues: {
         id: '',
@@ -77,16 +80,15 @@ export default function page() {
         status: '',
         logo: [],
         createdBy: user?.info?.id,
-        updatedBy: '',
+        updatedBy: ''
       },
       resolver: zodResolver(brandValidator),
     });
 
   const brands = useStore(selector('brands'));
-  const category = useStore(selector('categories'));
 
   const [action, setAction] = useState<string>(ACTIONS.ADD);
-  const columns = [
+  const columns: TableColumnsType = [
     {
       key: 0,
       dataIndex: 'name',
@@ -102,11 +104,6 @@ export default function page() {
     },
     {
       key: 1,
-      dataIndex: 'description',
-      title: 'Description',
-    },
-    {
-      key: 2,
       dataIndex: 'logo',
       title: 'Logo',
       render: (data: string, index: number) =>
@@ -128,19 +125,19 @@ export default function page() {
         ),
     },
     {
-      key: 3,
-      dataIndex: 'status',
+      key: 2,
+      dataIndex: 'isDeleted',
       title: 'Status',
       render: (data: string, index: number) => (
         <CustomTag
           key={index}
-          children={data}
-          color={data === STATUS.ACTIVE ? 'green' : 'error'}
+          children={!data ? 'Active' : 'Deleted'}
+          color={!data ? 'green' : 'error'}
         />
       ),
     },
     {
-      key: 4,
+      key: 3,
       dataIndex: 'createdByUser',
       title: 'Added By',
       render: (data: any, index: number) => (
@@ -148,7 +145,7 @@ export default function page() {
       ),
     },
     {
-      key: 5,
+      key: 4,
       dataIndex: 'updatedByUser',
       title: 'Updated By',
       render: (data: any, index: number) => (
@@ -156,7 +153,7 @@ export default function page() {
       ),
     },
     {
-      key: 6,
+      key: 5,
       dataIndex: 'createdAt',
       title: 'Date Added',
       render: (data: any, index: number) => (
@@ -164,7 +161,7 @@ export default function page() {
       ),
     },
     {
-      key: 7,
+      key: 6,
       dataIndex: 'updatedAt',
       title: 'Date Modified',
       render: (data: any, index: number) => (
@@ -172,7 +169,7 @@ export default function page() {
       ),
     },
     {
-      key: 8,
+      key: 7,
       dataIndex: 'Categories',
       title: 'No. of Categories',
       render: (data: any, index: number) => (
@@ -180,7 +177,7 @@ export default function page() {
       ),
     },
     {
-      key: 9,
+      key: 8,
       title: 'Action',
       render: (data: any, index: number) => (
         <div className="flex flex-row items-center gap-2 w-full" key={index}>
@@ -191,9 +188,9 @@ export default function page() {
           />
           <CustomButton
             type="dashed"
-            children={data?.status === STATUS.ACTIVE ? 'Delete' : 'Restore'}
-            danger={data?.status === STATUS.ACTIVE}
-            onClick={() => showModal(ACTIONS.DELETE, data)}
+            children={!data?.isDeleted ? 'Delete' : 'Restore'}
+            danger={!data?.isDeleted}
+            onClick={() => showModal(!data?.isDeleted ? ACTIONS.DELETE : ACTIONS.RESTORE, data)}
           />
         </div>
       ),
@@ -208,7 +205,8 @@ export default function page() {
     queryKey: ['category'],
     queryFn: async () => await CategoryServices.fetchAll(),
   });
- console.log(categoryData)
+  const [selectedRowKeys, setSelectedRowKeys] = useState([]);
+
   useLayoutEffect(() => {
     if (!isLoading1) {
       fetchBrands(brandsData?.data?.data);
@@ -223,8 +221,7 @@ export default function page() {
     (act: string, data?: any) => {
       setIsOpenModal(true);
       setAction(act);
-      if (act === ACTIONS.EDIT || act === ACTIONS.DELETE) {
-        console.log(data?.logo);
+      if (act === ACTIONS.EDIT || act === ACTIONS.DELETE || act === ACTIONS.RESTORE) {
         setValue('id', data?.id);
         setValue('name', data?.name, {
           shouldValidate: true,
@@ -251,8 +248,9 @@ export default function page() {
       status: '',
       logo: [],
       createdBy: user?.info?.id,
-      updatedBy: '',
+      updatedBy: ''
     });
+    setSelectedRowKeys([])
   }, []);
 
   const onSetFilter = useCallback((e: ChangeEvent<HTMLInputElement>) => {
@@ -280,7 +278,9 @@ export default function page() {
         ? async (info: object) => addBrand(info)
         : action === ACTIONS.EDIT
         ? async (info: object) => updateBrand(info)
-        : async (info: object) => deleteBrand(info),
+        : (action === ACTIONS.DELETE || action === ACTIONS.MULTIDELETE) 
+        ? async (info: object) => deleteBrand(info)
+        : async (info: object) => restoreBrand(info),
     onSuccess: (response) => {
       setIsOpenModal(false);
       reset({
@@ -290,8 +290,10 @@ export default function page() {
         status: '',
         logo: [],
         createdBy: user?.info?.id,
-        updatedBy: '',
+        updatedBy: ''
       });
+      setSelectedRowKeys([])
+      queryClient.invalidateQueries({ queryKey: ['brands'] });
     },
     onError: (error) => {
       console.log(error);
@@ -299,11 +301,13 @@ export default function page() {
   });
   const onSubmit: SubmitHandler<ValidationSchema> = useCallback(
     (data) => {
-      console.log('data: ', data);
-      console.log(action);
+      console.log('submitting', data); 
       const formData = new FormData();
-      formData.append('name', data?.name);
-      formData.append('description', data?.description);
+      if(action !== ACTIONS.DELETE && action !== ACTIONS.RESTORE && action !== ACTIONS.MULTIDELETE) {
+        formData.append('name', data?.name);
+        formData.append('description', data?.description);
+      }
+      
       if (
         typeof data?.logo !== 'string' &&
         !_.isNil(data?.logo) &&
@@ -314,20 +318,26 @@ export default function page() {
 
       if (action === ACTIONS.ADD) {
         formData.append('createdBy', data?.createdBy);
-      } else if (action === ACTIONS.EDIT || action === ACTIONS.DELETE) {
+      } else if (action === ACTIONS.EDIT) {
         formData.append('id', data?.id);
         formData.append('updatedBy', data?.updatedBy);
+      }else if(action === ACTIONS.DELETE || action === ACTIONS.RESTORE){
+        formData.append('updatedBy', data?.updatedBy);
+        formData.append('ids[]',data?.id)
+      }else if(action === ACTIONS.MULTIDELETE){
+        formData.append('updatedBy', user?.info?.id);
+        selectedRowKeys.map(item =>formData.append('ids[]',item))
       }
 
       brandMutation.mutate(formData);
     },
-    [action],
+    [action]
   );
 
   // Rendered Components
   const renderModalContent = () => (
     <Form onFinish={handleSubmit(onSubmit)} className="mt-5">
-      {action !== ACTIONS.DELETE ? (
+      {(action !== ACTIONS.DELETE && action !== ACTIONS.RESTORE && action !== ACTIONS.MULTIDELETE) ? (
         <>
           <FormItem name="logo" control={control}>
             {typeof getValues('logo') === 'string' &&
@@ -401,6 +411,21 @@ export default function page() {
             />
           </FormItem>
         </>
+      ) : action === ACTIONS.MULTIDELETE ? (
+        <div>
+          <CustomLabel
+            variant="text"
+            children={
+              <span>
+                {' '}
+                Are you sure? Do you really want to{' '}
+                delete{' '}
+                all selected brands{' '}
+              </span>
+            }
+            classes="text-lg"
+          />
+        </div>
       ) : (
         <div>
           <CustomLabel
@@ -409,7 +434,7 @@ export default function page() {
               <span>
                 {' '}
                 Are you sure? Do you really want to{' '}
-                {getValues('status') === STATUS.ACTIVE
+                {action === ACTIONS.DELETE
                   ? 'delete'
                   : 'restore'}{' '}
                 this brand{' '}
@@ -420,7 +445,6 @@ export default function page() {
           />
         </div>
       )}
-
       <Form.Item>
         <div className="mt-5 p-0 mb-0 w-full flex items-center justify-end">
           <CustomButton
@@ -428,15 +452,17 @@ export default function page() {
             loading={brands?.loading}
             type="primary"
             danger={
-              action === ACTIONS.DELETE && getValues('status') === STATUS.ACTIVE
+              (action === ACTIONS.DELETE)
             }
             children={
               action === ACTIONS.ADD
                 ? 'Submit'
                 : action === ACTIONS.EDIT
                 ? 'Save Changes'
-                : getValues('status') === STATUS.ACTIVE
+                : action === ACTIONS.DELETE
                 ? 'Delete'
+                : action === ACTIONS.MULTIDELETE
+                ? 'Delete all selected'
                 : 'Restore'
             }
           />
@@ -444,7 +470,23 @@ export default function page() {
       </Form.Item>
     </Form>
   );
-console.log(category)
+
+  
+  const onSelectChange = (selectedRows: any) => {
+    setSelectedRowKeys(selectedRows);
+  };
+
+  const rowSelection = {
+    selectedRowKeys,
+    onChange: onSelectChange
+  };
+  const brandData = brands?.items?.map((data: { id: any; }) => ({
+    ...data,
+    key:data.id
+  }))
+
+  console.log(selectedRowKeys)
+
   return (
     <div className="">
       <div className="flex items-center justify-between">
@@ -473,21 +515,34 @@ console.log(category)
           onClick={() => showModal(ACTIONS.ADD)}
         />
       </div>
-      <div className="mt-14 space-y-5">
+      <div className="mt-14 w-full space-y-5">
         <Tabs defaultActiveKey="0" items={items} onChange={onChangeTab} />
-        <div className="text-right w-full">
+        <div className="flex relative w-full">
+          {selectedRowKeys.length > 0 &&
+            <CustomButton
+            icon={<MdDelete />}
+            size="large"
+            danger
+            children="Delete Selected"
+            onClick={() => showModal(ACTIONS.MULTIDELETE)}
+          />
+          }
+          <div className='w-full flex justify-end text-right'>
           <CustomInput
             placeholder="Search brand name"
             size="large"
-            classes="w-1/4"
+            classes="w-52"
             name="name"
             onChange={useDebounce(onSetFilter)}
           />
+          </div>
+
         </div>
         <CustomTable
           columns={columns}
           loading={isLoading1}
-          datasource={!isLoading1 ? brands?.items : []}
+          rowSelection={rowSelection}
+          datasource={!isLoading1 ? brandData : []}
         />
       </div>
 
@@ -501,7 +556,7 @@ console.log(category)
               ? 'Edit a brand'
               : getValues('status') === STATUS.ACTIVE
               ? 'Delete a brand'
-              : 'Restore a brand'
+              : 'Delete selected brands'
           }
           footer={null}
           isOpen={isOpenModal}

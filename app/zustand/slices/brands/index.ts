@@ -16,6 +16,7 @@ export interface BrandsSlice {
   addBrand: (payload: any) => void;
   updateBrand: (payload: any) => void;
   deleteBrand: (payload: any) => void;
+  restoreBrand: (payload:any) => void;
 }
 
 const initialState: BrandsState = {
@@ -176,6 +177,52 @@ const createBrandSlice: StateCreator<BrandsSlice> = (set) => ({
               ),
             },
           }));
+          customAlert(
+            'success',
+            MESSAGES.SUCCESS,
+            response?.data?.data?.status === STATUS.ACTIVE
+              ? MESSAGES.RESTORED
+              : MESSAGES.DELETED,
+          );
+        } else {
+          set((state) => ({
+            ...state,
+            brands: {
+              ...state.brands,
+              loading: false,
+            },
+          }));
+          customAlert('error', MESSAGES.ERROR, response?.data?.message);
+        }
+      }
+    } catch (error) {
+      set((state) => ({
+        brands: {
+          ...state.brands,
+          loading: false,
+          responseMsg: error.response.data.message,
+        },
+      }));
+      customAlert('error', MESSAGES.ERROR, error.response.data.message);
+    }
+  },
+  restoreBrand: async (payload) => {
+    try {
+      set((state) => ({
+        ...state,
+        brands: {
+          ...state.brands,
+          loading: true,
+        },
+      }));
+
+      const process = await executeOnProcess(() =>
+        customAlert('info', MESSAGES.PLEASE_WAIT, MESSAGES.EXECUTING_TASK),
+      );
+
+      const response = await BrandServices.restoreBrand(payload);
+      if (response.status === STATUS_CODES.OK && process) {
+        if (!('message' in response.data)) {
           customAlert(
             'success',
             MESSAGES.SUCCESS,

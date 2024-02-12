@@ -7,7 +7,8 @@ const Api = {
     USER_LIST: ApiEndpoint(base + '/fetch'),
     DELETE_USER: ApiEndpoint(base + '/delete'),
     ADD_USER: ApiEndpoint(base + '/add'),
-    UPDATE_USER: ApiEndpoint(base + '/update')
+    UPDATE_USER: ApiEndpoint(base + '/update'),
+    RESTORE_USER: ApiEndpoint(base + '/restore')
   }),
 
   BRAND: (base = '/brands') => ({
@@ -15,6 +16,7 @@ const Api = {
     ADD_BRAND: ApiEndpoint(base + '/add'),
     UPDATE_BRAND: ApiEndpoint(base + '/update'),
     DELETE_BRAND: ApiEndpoint(base + '/delete'),
+    RESTORE_BRAND: ApiEndpoint(base + '/restore')
   }),
 
   CATEGORIES: (base = '/categories') => ({
@@ -22,6 +24,7 @@ const Api = {
     ADD_CATEGORY: ApiEndpoint(base + '/add'),
     UPDATE_CATEGORY: ApiEndpoint(base + '/update'),
     DELETE_CATEGORY: ApiEndpoint(base + '/delete'),
+    RESTORE_CATEGORY: ApiEndpoint(base + '/restore')
   }),
 
   PRODUCTS: (base = '/products') => ({

@@ -78,6 +78,7 @@ export default function page() {
   const [isOpenModal, setIsOpenModal] = useState<boolean>(false);
   const [listFile,setListFile] = useState([]);
   const [productId,setProductId] = useState('');
+  const [selectedRowKeys, setSelectedRowKeys] = useState([]);
   const [selectedImages, setSelectedImages] = useState([]);
   const [action, setAction] = useState(null);
   const [filter, setFilter] = useState({
@@ -120,14 +121,6 @@ export default function page() {
     },
     {
       key: 1,
-      dataIndex: 'description',
-      title: 'Description',
-      render: (data: any, index: number) => (
-        <div dangerouslySetInnerHTML={{ __html: data }}></div>
-      ),
-    },
-    {
-      key: 2,
       dataIndex: 'price',
       title: 'Price',
       render: (data: any, index: number) => (
@@ -135,7 +128,7 @@ export default function page() {
       ),
     },
     {
-      key: 3,
+      key: 2,
       dataIndex: 'discount',
       title: 'Discount',
       render: (data: any, index: number) => (
@@ -143,7 +136,7 @@ export default function page() {
       ),
     },
     {
-      key: 4,
+      key: 3,
       dataIndex: 'discountedPrice',
       title: 'Discounted Price',
       render: (data: any, index: number) => (
@@ -151,7 +144,7 @@ export default function page() {
       ),
     },
     {
-      key: 5,
+      key: 4,
       dataIndex: 'status',
       title: 'Status',
       render:(data:any,index:number) =>(
@@ -159,7 +152,7 @@ export default function page() {
       )
     },
     {
-      key: 6,
+      key: 5,
       dataIndex: 'brand',
       title: 'Brand',
       render: (data: any, index: number) => (
@@ -167,7 +160,7 @@ export default function page() {
       ),
     },
     {
-      key: 7,
+      key: 6,
       dataIndex: 'category',
       title: 'Category',
       render: (data: any, index: number) => (
@@ -175,12 +168,12 @@ export default function page() {
       ),
     },
     {
-      key: 8,
+      key: 7,
       dataIndex: 'stock',
       title: 'Stock',
     },
     {
-      key: 9,
+      key: 8,
       dataIndex: 'createdByUser',
       title: 'Added By',
       render: (data: any, index: number) => (
@@ -188,7 +181,7 @@ export default function page() {
       ),
     },
     {
-      key: 10,
+      key: 9,
       title: 'Action',
       render: (data: any, index: number) => (
         <div className="flex flex-row items-center gap-2 w-full" key={index}>
@@ -542,6 +535,20 @@ export default function page() {
 
     </Form>
   );
+
+  const onSelectChange = (selectedRows: any) => {
+    setSelectedRowKeys(selectedRows);
+  };
+
+  const rowSelection = {
+    selectedRowKeys,
+    onChange: onSelectChange
+  };
+  const productData = products?.items?.map(data => ({
+    ...data,
+    key:data.id
+  }))
+  console.log(selectedRowKeys)
   return (
     <div className='h-max'>
       <div className="flex items-center justify-between">
@@ -608,7 +615,8 @@ export default function page() {
         <CustomTable
           columns={columns}
           loading={isLoading}
-          datasource={products?.items ?? []}
+          rowSelection={rowSelection}
+          datasource={productData ?? []}
         />
       </div>
       <div>

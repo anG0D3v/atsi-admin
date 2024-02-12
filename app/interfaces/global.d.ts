@@ -1,3 +1,5 @@
+
+
 export interface IBrandDTO {
   id: string;
   name: string;
@@ -7,6 +9,7 @@ export interface IBrandDTO {
   status?: string;
   file?: object;
   updatedAt?: Date;
+  ids: any;
 }
 
 export interface ICategoriesDTO {

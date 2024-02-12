@@ -9,15 +9,18 @@ interface ITableProps {
   classes?: any;
   datasource?: any[];
   name?: any;
+  rowSelection?: any;
   columns: Array<ColumnType<any>> | Array<ColumnGroupType<any>>;
 }
 function CustomTable(props: ITableProps) {
+
   return (
     <Table
       columns={props.columns}
       className={clsx(props.classes)}
       loading={props.loading}
       dataSource={props.datasource}
+      rowSelection={props.rowSelection}
       scroll={{
         x: '00vw',
       }}

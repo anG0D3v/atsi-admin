@@ -16,6 +16,7 @@ export interface UserListSlice {
   deleteUser: (payload: any) => Promise<void>;
   addUser: (payload: any) => Promise<void>;
   updateUser: (payload: any) => Promise<void>;
+  restoreUser: (payload: any) => Promise<void>;
 }
 
 const initialState: UserListState = {
@@ -202,7 +203,52 @@ const createUserListSlice: StateCreator<UserListSlice> = (set) => ({
     }));
     customAlert('error', MESSAGES.ERROR, error.response.data.message);
   }
-  }
+  },
+  restoreUser: async (payload) =>{
+    try {
+        set((state) => ({
+            ...state,
+            userList: {
+              ...state.userList,
+              loading: true,
+            },
+          }));
+    
+          const process = await executeOnProcess(() =>
+            customAlert('info', MESSAGES.PLEASE_WAIT, MESSAGES.EXECUTING_TASK),
+          );
+          const response = await UserListSevices.restoreUser(payload);
+          if (response.status === STATUS_CODES.OK && process) {
+            if (!('message' in response.data)) {
+              customAlert(
+                'success',
+                MESSAGES.SUCCESS,
+                response?.data?.data?.status === STATUS.AVAILABLE
+                  ? MESSAGES.RESTORED
+                  : MESSAGES.DELETED,
+              );
+            } else {
+              set((state) => ({
+                ...state,
+                userList: {
+                  ...state.userList,
+                  loading: false,
+                },
+              }));
+              customAlert('error', MESSAGES.ERROR, response?.data?.message);
+            }
+          }
+    } catch (error) {
+        set((state) => ({
+            userList: {
+              ...state.userList,
+              loading: false,
+              responseMsg: error.response.data.message,
+            },
+          }));
+          customAlert('error', MESSAGES.ERROR, error.response.data.message);    
+    }
+  },
 });
 
 export default createUserListSlice;

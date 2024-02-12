@@ -62,6 +62,7 @@ export default function page() {
   ];
   const user = useStore(selector('user'));
   const brands = useStore(selector('brands'));
+  const [selectedRowKeys, setSelectedRowKeys] = useState([]);
   const { handleSubmit, control, reset, setValue, getValues } =
     useForm<TValidationSchema>({
       defaultValues: {
@@ -98,12 +99,7 @@ export default function page() {
       ),
     },
     {
-      key: 1,
-      dataIndex: 'description',
-      title: 'Description',
-    },
-    {
-      key: 2,
+      key: 3,
       dataIndex: 'status',
       title: 'Status',
       render: (data: string, index: number) => (
@@ -115,7 +111,7 @@ export default function page() {
       ),
     },
     {
-      key: 3,
+      key: 4,
       dataIndex: 'createdByUser',
       title: 'Added By',
       render: (data: any, index: number) => (
@@ -123,7 +119,7 @@ export default function page() {
       ),
     },
     {
-      key: 4,
+      key: 5,
       dataIndex: 'updatedByUser',
       title: 'Updated By',
       render: (data: any, index: number) => (
@@ -131,7 +127,7 @@ export default function page() {
       ),
     },
     {
-      key: 5,
+      key: 6,
       dataIndex: 'createdAt',
       title: 'Date Added',
       render: (data: any, index: number) => (
@@ -139,7 +135,7 @@ export default function page() {
       ),
     },
     {
-      key: 6,
+      key: 7,
       dataIndex: 'updatedAt',
       title: 'Date Modified',
       render: (data: any, index: number) => (
@@ -147,7 +143,7 @@ export default function page() {
       ),
     },
     {
-      key: 7,
+      key: 8,
       title: 'Action',
       render: (data: any, index: number) => (
         <div className="flex flex-row items-center gap-2 w-full" key={index}>
@@ -351,7 +347,19 @@ export default function page() {
       </Form.Item>
     </Form>
   );
+  const onSelectChange = (selectedRows: any) => {
+    setSelectedRowKeys(selectedRows);
+  };
 
+  const rowSelection = {
+    selectedRowKeys,
+    onChange: onSelectChange
+  };
+  const categoryData = categories?.items?.map(data => ({
+    ...data,
+    key:data.id
+  }))
+  console.log(selectedRowKeys)
   return (
     <div>
       <div className="flex items-center justify-between">
@@ -395,7 +403,8 @@ export default function page() {
         <CustomTable
           columns={columns}
           loading={isLoading}
-          datasource={!isLoading ? categories?.items : []}
+          datasource={!isLoading ? categoryData : []}
+          rowSelection={rowSelection}
         />
       </div>
       <CustomModal

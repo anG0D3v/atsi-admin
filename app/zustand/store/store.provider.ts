@@ -25,7 +25,9 @@ export const {
   updateUser,
   logout,
   updateProduct,
-  deleteProductImg
+  deleteProductImg,
+  restoreBrand,
+  restoreUser
 } = storeProvider;
 
 export { selector, storeProvider };
