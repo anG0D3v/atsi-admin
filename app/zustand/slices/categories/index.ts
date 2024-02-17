@@ -16,6 +16,7 @@ export interface CategoriesSlice {
   addCategory: (payload: any) => Promise<void>;
   updateCategory: (payload: any) => Promise<void>;
   deleteCategory: (payload: any) => Promise<void>;
+  restoreCategory: (payload:any) => void;
 }
 
 const initialState: CategoriesState = {
@@ -178,6 +179,52 @@ const createCategoriesSlice: StateCreator<CategoriesSlice> = (set) => ({
               ),
             },
           }));
+          customAlert(
+            'success',
+            MESSAGES.SUCCESS,
+            response?.data?.data?.status === STATUS.AVAILABLE
+              ? MESSAGES.RESTORED
+              : MESSAGES.DELETED,
+          );
+        } else {
+          set((state) => ({
+            ...state,
+            categories: {
+              ...state.categories,
+              loading: false,
+            },
+          }));
+          customAlert('error', MESSAGES.ERROR, response?.data?.message);
+        }
+      }
+    } catch (error) {
+      set((state) => ({
+        categories: {
+          ...state.categories,
+          loading: false,
+          responseMsg: error.response.data.message,
+        },
+      }));
+      customAlert('error', MESSAGES.ERROR, error.response.data.message);
+    }
+  },
+  restoreCategory: async (payload) => {
+    try {
+      set((state) => ({
+        ...state,
+        categories: {
+          ...state.categories,
+          loading: true,
+        },
+      }));
+
+      const process = await executeOnProcess(() =>
+        customAlert('info', MESSAGES.PLEASE_WAIT, MESSAGES.EXECUTING_TASK),
+      );
+
+      const response = await CategoriesServices.restoreCategories(payload);
+      if (response.status === STATUS_CODES.OK && process) {
+        if (!('message' in response.data)) {
           customAlert(
             'success',
             MESSAGES.SUCCESS,

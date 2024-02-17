@@ -6,12 +6,13 @@ import React, {
   useState,
 } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Form, Tabs, type TabsProps } from 'antd';
 import _ from 'lodash';
 import Highlighter from 'react-highlight-words';
 import { type SubmitHandler, useForm } from 'react-hook-form';
 import { FormItem } from 'react-hook-form-antd';
+import { MdDelete } from 'react-icons/md';
 import { PiPlus } from 'react-icons/pi';
 import { TbCategoryFilled } from 'react-icons/tb';
 import { type z } from 'zod';
@@ -35,6 +36,7 @@ import {
   addCategory,
   deleteCategory,
   fetchCategories,
+  restoreCategory,
   selector,
   updateCategory,
 } from '@/zustand/store/store.provider';
@@ -62,6 +64,8 @@ export default function page() {
   ];
   const user = useStore(selector('user'));
   const brands = useStore(selector('brands'));
+  const queryClient = useQueryClient();
+  const [action, setAction] = useState<string>(ACTIONS.ADD);
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
   const { handleSubmit, control, reset, setValue, getValues } =
     useForm<TValidationSchema>({
@@ -72,12 +76,12 @@ export default function page() {
         status: '',
         createdBy: user?.info?.id,
         updatedBy: '',
+        brandsId:[]
       },
       resolver: zodResolver(categoriesValidator),
     });
 
   const categories = useStore(selector('categories'));
-  const [action, setAction] = useState<string>(ACTIONS.ADD);
 
   const { data: categoriesData, isLoading } = useQuery({
     queryKey: ['categories', filter],
@@ -100,13 +104,13 @@ export default function page() {
     },
     {
       key: 3,
-      dataIndex: 'status',
+      dataIndex: 'isDeleted',
       title: 'Status',
       render: (data: string, index: number) => (
         <CustomTag
           key={index}
-          children={data}
-          color={data === STATUS.AVAILABLE ? 'green' : 'error'}
+          children={!data ? 'Active' : 'Deleted'}
+          color={!data ? 'green' : 'error'}
         />
       ),
     },
@@ -154,9 +158,9 @@ export default function page() {
           />
           <CustomButton
             type="dashed"
-            children={data?.status === STATUS.AVAILABLE ? 'Delete' : 'Restore'}
-            danger={data?.status === STATUS.AVAILABLE}
-            onClick={() => showModal(ACTIONS.DELETE, data)}
+            children={!data?.isDeleted ? 'Delete' : 'Restore'}
+            danger={!data?.isDeleted}
+            onClick={() => showModal(!data?.isDeleted ? ACTIONS.DELETE : ACTIONS.RESTORE, data)}
           />
         </div>
       ),
@@ -196,14 +200,16 @@ export default function page() {
       status: '',
       createdBy: user?.info?.id,
       updatedBy: '',
+      brandsId:[]
     });
+    setSelectedRowKeys([])
   }, []);
 
   const showModal = useCallback((act?: string, data?: any) => {
     setAction(act);
     setOpen(true);
-    if (act === ACTIONS.EDIT || act === ACTIONS.DELETE) {
-      console.log(data?.logo);
+    console.log(selectedRowKeys)
+    if (act === ACTIONS.EDIT || act === ACTIONS.DELETE || act === ACTIONS.RESTORE || act === ACTIONS.MULTIDELETE) {
       setValue('id', data?.id);
       setValue('name', data?.name, {
         shouldValidate: true,
@@ -213,7 +219,7 @@ export default function page() {
         shouldValidate: true,
         shouldDirty: true,
       });
-      setValue('brandsId', data?.brandsId);
+      setValue('brandsId', data?.Brands.map((item: { id: any; }) => item.id));
       setValue('updatedBy', user?.info?.id);
       setValue('status', data?.status);
     }
@@ -225,7 +231,9 @@ export default function page() {
         ? async (info: object) => await addCategory(info)
         : action === ACTIONS.EDIT
         ? async (info: object) => await updateCategory(info)
-        : async (info: object) => await deleteCategory(info),
+        : (action === ACTIONS.DELETE || action === ACTIONS.MULTIDELETE) 
+        ? async (info: object) => await deleteCategory(info)
+        : async (info: object) => restoreCategory(info),
     onSuccess: (response) => {
       setOpen(false);
       reset({
@@ -236,6 +244,8 @@ export default function page() {
         createdBy: user?.info?.id,
         updatedBy: '',
       });
+      setSelectedRowKeys([])
+      queryClient.invalidateQueries({ queryKey: ['categories'] });
     },
     onError: (error) => {
       console.log(error);
@@ -244,18 +254,31 @@ export default function page() {
 
   const onSubmit: SubmitHandler<TValidationSchema> = useCallback(
     (data) => {
+     
+      const formData = new FormData();
       if (action === ACTIONS.ADD) {
-        delete data?.id;
-        delete data?.updatedBy;
-        delete data?.status;
-      } else if (action === ACTIONS.DELETE) {
-        delete data?.name;
-        delete data?.brandsId;
-        delete data?.createdBy;
-        delete data?.description;
-        delete data?.status;
+        formData.append('name',data?.name)
+        formData.append('description',data?.description)
+        formData.append('createdBy',user?.info?.id)
+        data?.brandsId.map(item => formData.append('brandIds[]',item))
+        delete data?.updatedBy
+        delete data?.id
+      }else if (action === ACTIONS.EDIT) {
+        formData.append('name',data?.name)
+        formData.append('description',data?.description)
+        formData.append('id', data?.id);
+        formData.append('updatedBy', user?.info?.id);
+        data?.brandsId.map(item => formData.append('brandIds[]',item));
+        delete data?.createdBy
+        
+      }else if(action === ACTIONS.DELETE || action === ACTIONS.RESTORE){
+        formData.append('updatedBy', data?.updatedBy);
+        formData.append('ids[]',data?.id)
+      }else if(action === ACTIONS.MULTIDELETE){
+        formData.append('updatedBy', user?.info?.id);
+        selectedRowKeys.map(item =>formData.append('ids[]',item))
       }
-      categoryMutation.mutate(data);
+      categoryMutation.mutate(formData);
     },
     [action],
   );
@@ -263,7 +286,7 @@ export default function page() {
   // Rendered Components
   const renderModalContent = () => (
     <Form onFinish={handleSubmit(onSubmit)} className="mt-5">
-      {action !== ACTIONS.DELETE ? (
+      {(action !== ACTIONS.DELETE && action !== ACTIONS.RESTORE && action !== ACTIONS.MULTIDELETE) ? (
         <>
           <FormItem name="name" control={control}>
             <CustomInput
@@ -283,6 +306,7 @@ export default function page() {
               renderText="name"
               renderValue="id"
               renderKey="id"
+              mode='multiple'
               // onChange={onSelectPositions}
               // status={
               //   formik.touched.position && Boolean(formik.errors.position)
@@ -303,6 +327,21 @@ export default function page() {
             />
           </FormItem>
         </>
+      ) : action === ACTIONS.MULTIDELETE ? (
+        <div>
+          <CustomLabel
+            variant="text"
+            children={
+              <span>
+                {' '}
+                Are you sure? Do you really want to{' '}
+                delete{' '}
+                all selected categories{' '}
+              </span>
+            }
+            classes="text-lg"
+          />
+        </div>
       ) : (
         <div>
           <CustomLabel
@@ -338,8 +377,10 @@ export default function page() {
                 ? 'Submit'
                 : action === ACTIONS.EDIT
                 ? 'Save Changes'
-                : getValues('status') === STATUS.AVAILABLE
+                : action === ACTIONS.DELETE
                 ? 'Delete'
+                : action === ACTIONS.MULTIDELETE
+                ? 'Delete all selected'
                 : 'Restore'
             }
           />
@@ -348,18 +389,23 @@ export default function page() {
     </Form>
   );
   const onSelectChange = (selectedRows: any) => {
+    console.log(selectedRows)
     setSelectedRowKeys(selectedRows);
   };
 
   const rowSelection = {
     selectedRowKeys,
-    onChange: onSelectChange
+    onChange: onSelectChange,
+    getCheckboxProps: (record: any) => ({
+      disabled: record.isDeleted === true, 
+    }),
   };
   const categoryData = categories?.items?.map(data => ({
     ...data,
     key:data.id
   }))
-  console.log(selectedRowKeys)
+ 
+  console.log(getValues())
   return (
     <div>
       <div className="flex items-center justify-between">
@@ -391,6 +437,16 @@ export default function page() {
 
       <div className="mt-14 space-y-5">
         <Tabs defaultActiveKey="0" items={items} onChange={onChangeTab} />
+        <div className="flex relative w-full">
+        {selectedRowKeys.length > 0 &&
+            <CustomButton
+            icon={<MdDelete />}
+            size="large"
+            danger
+            children="Delete Selected"
+            onClick={() => showModal(ACTIONS.MULTIDELETE)}
+          />
+          }
         <div className="text-right w-full">
           <CustomInput
             placeholder="Search brand name"
@@ -399,6 +455,8 @@ export default function page() {
             name="name"
             onChange={useDebounce(onSetFilter)}
           />
+        </div>
+
         </div>
         <CustomTable
           columns={columns}
@@ -414,8 +472,10 @@ export default function page() {
             ? 'Add a category'
             : _.isEqual(action, ACTIONS.EDIT)
             ? 'Edit a category'
-            : getValues('status') === STATUS.AVAILABLE
+            : _.isEqual(action, ACTIONS.DELETE)
             ? 'Delete a category'
+            : _.isEqual(action, ACTIONS.MULTIDELETE)
+            ? 'Delete  multiple categories'
             : 'Restore a category'
         }
         footer={null}

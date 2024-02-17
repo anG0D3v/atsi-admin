@@ -478,14 +478,17 @@ export default function page() {
 
   const rowSelection = {
     selectedRowKeys,
-    onChange: onSelectChange
+    onChange: onSelectChange,
+    getCheckboxProps: (record: any) => ({
+      disabled: record.isDeleted === true, 
+    }),
   };
   const brandData = brands?.items?.map((data: { id: any; }) => ({
     ...data,
     key:data.id
   }))
 
-  console.log(selectedRowKeys)
+  console.log(getValues())
 
   return (
     <div className="">
@@ -554,9 +557,11 @@ export default function page() {
               ? 'Add a brand'
               : _.isEqual(action, ACTIONS.EDIT)
               ? 'Edit a brand'
-              : getValues('status') === STATUS.ACTIVE
+              : _.isEqual(action, ACTIONS.DELETE)
               ? 'Delete a brand'
-              : 'Delete selected brands'
+              : _.isEqual(action, ACTIONS.MULTIDELETE)
+              ? 'Delete  multiple brand'
+              : 'Restore a brand'
           }
           footer={null}
           isOpen={isOpenModal}

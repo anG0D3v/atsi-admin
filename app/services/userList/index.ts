@@ -6,10 +6,9 @@ const UserListSevices = {
     await axiosInstance.get(
         Api.USER().USER_LIST + `?username=${data?.username}&status=${data?.status}&type=${data?.type}`
     ),
-    deleteUser: async (data: any) =>
-    await axiosInstance.delete(
-        Api.USER().DELETE_USER + `/${data.id}`
-    ),
+    deleteUser: async (data: any) => 
+     await axiosInstance.delete(Api.USER().DELETE_USER, {data})
+    ,
     addUser: async (data:any) =>
     await axiosInstance.post(Api.USER().ADD_USER, data),
     updateUser: async (data:any) =>

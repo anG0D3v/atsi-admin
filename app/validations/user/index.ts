@@ -1,9 +1,10 @@
 import z from 'zod'
 
 const userValidator = z.object({
-    username: z.string().min(1,{ message: 'Username is required!'}),
-    email: z.string().email({message:'Invalid email format!'}),
-    password: z.string().min(8,{ message: 'Should have atleast 8 characters' })
+    id: z.string().optional(),
+    username: z.string().min(1,{ message: 'Username is required!'}).optional(),
+    email: z.string().email({message:'Invalid email format!'}).optional(),
+    password: z.string().min(8,{ message: 'Should have atleast 8 characters' }).optional()
 })
 
 export const userUpdateValidator = z.object({

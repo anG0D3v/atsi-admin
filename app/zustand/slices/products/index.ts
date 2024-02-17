@@ -19,7 +19,8 @@ export interface ProductsSlice {
   addProduct: (payload: any) => void;
   updateProduct: (payload: any) => void;
   deleteProductImg: (payload: any) => void;
-  //   deleteProduct: (payload: any) => void;
+  deleteProduct: (payload: any) => void;
+  restoreProduct: (payload:any) => void;
 }
 
 const initialState: ProductsState = {
@@ -144,6 +145,86 @@ const createProductsSlice: StateCreator<ProductsSlice> = (set) => ({
       customAlert('info', MESSAGES.PLEASE_WAIT, MESSAGES.EXECUTING_TASK),
     );
     const response = await ProductsService.deleteProductImg(payload)     
+    if (response.status === STATUS_CODES.OK && process) {
+      if (!('message' in response.data)) {
+        set((state) => ({
+          ...state,
+          products: {
+            ...state.products,
+            loading: false,
+          },
+        }));
+        customAlert('success', MESSAGES.SUCCESS, MESSAGES.DELETED);
+        return response.data.data
+      } else {
+        set((state) => ({
+          ...state,
+          products: {
+            ...state.products,
+            loading: false,
+          },
+        }));
+        customAlert('error', MESSAGES.ERROR, response?.data?.message);
+        return null;
+      }
+    }    
+    } catch (error) {
+      console.log(error)
+    }
+  },
+  deleteProduct: async(payload) =>{
+    try {
+      set((state) => ({
+        ...state,
+        products: {
+          ...state.products,
+          loading: true,
+        },
+      }));
+      const process = await executeOnProcess(() =>
+      customAlert('info', MESSAGES.PLEASE_WAIT, MESSAGES.EXECUTING_TASK),
+    );
+    const response = await ProductsService.deleteProduct(payload)     
+    if (response.status === STATUS_CODES.OK && process) {
+      if (!('message' in response.data)) {
+        set((state) => ({
+          ...state,
+          products: {
+            ...state.products,
+            loading: false,
+          },
+        }));
+        customAlert('success', MESSAGES.SUCCESS, MESSAGES.DELETED);
+        return response.data.data
+      } else {
+        set((state) => ({
+          ...state,
+          products: {
+            ...state.products,
+            loading: false,
+          },
+        }));
+        customAlert('error', MESSAGES.ERROR, response?.data?.message);
+        return null;
+      }
+    }    
+    } catch (error) {
+      console.log(error)
+    }
+  },
+  restoreProduct: async(payload) =>{
+    try {
+      set((state) => ({
+        ...state,
+        products: {
+          ...state.products,
+          loading: true,
+        },
+      }));
+      const process = await executeOnProcess(() =>
+      customAlert('info', MESSAGES.PLEASE_WAIT, MESSAGES.EXECUTING_TASK),
+    );
+    const response = await ProductsService.restoreProduct(payload)     
     if (response.status === STATUS_CODES.OK && process) {
       if (!('message' in response.data)) {
         set((state) => ({

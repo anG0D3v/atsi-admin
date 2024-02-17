@@ -24,7 +24,13 @@ const ProductsServices = {
      await axiosInstance.delete(
         Api.PRODUCTS().DELETE_IMAGES + `/${data?.get('id')}`,
         {data}
-      )
+      ),
+    deleteProduct: async(data:any) =>
+    await axiosInstance.delete(
+      Api.PRODUCTS().DELETE_PRODUCTS,{data}
+    ),
+    restoreProduct: async(data:any) =>
+    await axiosInstance.put(Api.PRODUCTS().RESTORE_PRODUCTS,data)
 };
 
 export default ProductsServices;

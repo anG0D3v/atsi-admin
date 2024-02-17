@@ -49,6 +49,9 @@ const createUserListSlice: StateCreator<UserListSlice> = (set) => ({
   },
   deleteUser: async (payload) =>{
     try {
+      for (var pair of payload.entries()) {
+        console.log(pair[0] + ', ' + pair[1]);
+      }
         set((state) => ({
             ...state,
             userList: {
@@ -63,18 +66,6 @@ const createUserListSlice: StateCreator<UserListSlice> = (set) => ({
           const response = await UserListSevices.deleteUser(payload);
           if (response.status === STATUS_CODES.OK && process) {
             if (!('message' in response.data)) {
-              set((state) => ({
-                ...state,
-                userList: {
-                  ...state.userList,
-                  loading: false,
-                  list: state.userList.list?.map((item) =>
-                    item?.id === response?.data?.data?.id
-                      ? response?.data?.data
-                      : item,
-                  ),
-                },
-              }));
               customAlert(
                 'success',
                 MESSAGES.SUCCESS,

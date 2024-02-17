@@ -28,7 +28,8 @@ const ACTIONS = {
   EDIT: 'edit',
   DELETE: 'delete',
   RESTORE: 'restore',
-  MULTIDELETE: 'multiDelete'
+  MULTIDELETE: 'multiDelete',
+  IMGDELETE: 'imgDelete'
 };
 
 const STATUS = {

@@ -15,6 +15,7 @@ import Highlighter from 'react-highlight-words';
 import { type SubmitHandler, useForm } from 'react-hook-form';
 import { FormItem } from 'react-hook-form-antd';
 import { BsFillBoxSeamFill } from 'react-icons/bs';
+import { MdDelete } from 'react-icons/md';
 import { PiPlus } from 'react-icons/pi';
 import { type z } from 'zod';
 import {
@@ -24,6 +25,7 @@ import {
   CustomModal,
   CustomSelect,
   CustomTable,
+  CustomTag,
   CustomTextEditor,
   CustomUploader,
 } from '@/components';
@@ -39,8 +41,10 @@ import productValidator from '@/validations/product';
 import useStore from '@/zustand/store/store';
 import {
   addProduct,
+  deleteProduct,
   deleteProductImg,
   loadProducts,
+  restoreProduct,
   selector,
   updateProduct
 } from '@/zustand/store/store.provider';
@@ -145,11 +149,15 @@ export default function page() {
     },
     {
       key: 4,
-      dataIndex: 'status',
+      dataIndex: 'isDeleted',
       title: 'Status',
-      render:(data:any,index:number) =>(
-        <span key={index}>{data === 'Out_of_Stock' ? data.replace(/_/g, ' ') : data}</span>
-      )
+      render: (data: string, index: number) => (
+        <CustomTag
+          key={index}
+          children={!data ? 'Active' : 'Deleted'}
+          color={!data ? 'green' : 'error'}
+        />
+      ),
     },
     {
       key: 5,
@@ -184,7 +192,7 @@ export default function page() {
       key: 9,
       title: 'Action',
       render: (data: any, index: number) => (
-        <div className="flex flex-row items-center gap-2 w-full" key={index}>
+        <div className="flex flex-col items-center gap-2 w-full" key={index}>
           <CustomButton
             type="primary"
             children="Edit"
@@ -195,6 +203,12 @@ export default function page() {
              danger
             children="Delete Images"
             onClick={() => showModal(ACTIONS.DELETE,data)}
+          />
+          <CustomButton
+             type="dashed"
+             children={!data?.isDeleted ? 'Delete Product' : 'Restore Product'}
+             danger={!data?.isDeleted}
+             onClick={() => showModal(!data?.isDeleted ? ACTIONS.DELETE : ACTIONS.RESTORE, data)}
           />
         </div>
       ),
@@ -213,7 +227,11 @@ export default function page() {
         ? async (info: object) => addProduct(info)
         : action === ACTIONS.EDIT
         ? async (info: object) => updateProduct(info)
-        : async (info: object) => deleteProductImg(info),
+        : action === ACTIONS.IMGDELETE
+        ? async (info: object) => deleteProductImg(info)
+        : (action === ACTIONS.DELETE || action === ACTIONS.MULTIDELETE) 
+        ? async (info: object) => deleteProduct(info)
+        : async (info: object) => restoreProduct(info),
     onSuccess: (response) => {
       setIsOpenModal(false);
       reset({
@@ -234,6 +252,7 @@ export default function page() {
         images: [],
       });
       setSelectedImages([])
+      setSelectedRowKeys([])
       queryClient.invalidateQueries({ queryKey: ['products'] });
     },
     onError: (error) => {
@@ -258,7 +277,7 @@ export default function page() {
   const showModal = useCallback((act: string,data?: any) => {
     setAction(act);
     setIsOpenModal(true);
-    if(act === ACTIONS.EDIT){
+    if(act === ACTIONS.EDIT || act === ACTIONS.DELETE || act === ACTIONS.RESTORE || act === ACTIONS.MULTIDELETE){
       console.log(data)
       setValue('id',data?.id)
       setValue('name',data?.name)
@@ -276,7 +295,7 @@ export default function page() {
       setValue('isSaleProduct',data?.isSaleProduct)
       setValue('images',data?.media)
     }
-    if(act === ACTIONS.DELETE){
+    if(act === ACTIONS.IMGDELETE){
       console.log(data?.media)
       setListFile(data?.media)
       setProductId(data?.id)
@@ -317,31 +336,42 @@ export default function page() {
       isSaleProduct: false,
       images: [],
     });
+    setSelectedRowKeys([])
+    setSelectedImages([])
   }, []);
 
   const onSubmit: SubmitHandler<ValidationSchema> = useCallback((data) => {
     const formData = new FormData();
+      if(action !== ACTIONS.DELETE && action !== ACTIONS.MULTIDELETE && action !== ACTIONS.RESTORE){
+        const images = getValues('images');
+        formData.append('name', getValues('name'));
+        formData.append('description', getValues('description'));
+        formData.append('price', getValues('price').toString());
+        formData.append('categoryId', getValues('categoryId'));
+        formData.append('brandId', getValues('brandId'));
+        formData.append('stock', getValues('stock').toString());
+        formData.append('shoppeeLink', getValues('shoppeeLink'));
+        formData.append('lazadaLink', getValues('lazadaLink'));
+        formData.append('status', getValues('status'));
+        formData.append('isSaleProduct', getValues('isSaleProduct').toString());
+        // eslint-disable-next-line array-callback-return
+        images?.fileList?.map((file: { originFileObj: string | Blob; }) => {
+          formData.append('file', file?.originFileObj)
+        })
+      }
       if (action === ACTIONS.ADD) {
         formData.append('createdBy', data?.createdBy);
       } else if (action === ACTIONS.EDIT) {
         formData.append('id', data?.id);
         formData.append('updatedBy', data?.updatedBy);
+      }else if(action === ACTIONS.DELETE || action === ACTIONS.RESTORE){
+        formData.append('updatedBy', data?.updatedBy);
+        formData.append('ids[]',data?.id)
+      }else if(action === ACTIONS.MULTIDELETE){
+        formData.append('updatedBy', user?.info?.id);
+        selectedRowKeys.map(item =>formData.append('ids[]',item))
       }
-      const images = getValues('images');
-      formData.append('name', getValues('name'));
-      formData.append('description', getValues('description'));
-      formData.append('price', getValues('price').toString());
-      formData.append('categoryId', getValues('categoryId'));
-      formData.append('brandId', getValues('brandId'));
-      formData.append('stock', getValues('stock').toString());
-      formData.append('shoppeeLink', getValues('shoppeeLink'));
-      formData.append('lazadaLink', getValues('lazadaLink'));
-      formData.append('status', getValues('status'));
-      formData.append('isSaleProduct', getValues('isSaleProduct').toString());
-      // eslint-disable-next-line array-callback-return
-      images?.fileList?.map((file: { originFileObj: string | Blob; }) => {
-        formData.append('file', file?.originFileObj)
-      })
+
     productMutation.mutateAsync(formData);
   }, [action, getValues, productMutation, setAction]);
 
@@ -359,6 +389,7 @@ export default function page() {
     setSelectedImages(newSelectedImages);
   };
   const handleDeleteImages = () =>{
+    setAction(ACTIONS.IMGDELETE)
     const formData = new FormData();
       selectedImages?.forEach((fileId) => {
          formData.append(`mediaIds[]`,fileId.id)
@@ -377,7 +408,7 @@ export default function page() {
   // Rendered Components
   const renderModalContent = () => (
     <Form onFinish={handleSubmit(onSubmit)} className="mt-5"> 
-      {action !== ACTIONS.DELETE ? (<div>
+      {(action !== ACTIONS.DELETE && action !== ACTIONS.RESTORE && action !== ACTIONS.MULTIDELETE && action !== ACTIONS.IMGDELETE) ? (<div>
       <FormItem name="images" control={control}>
         <CustomUploader
           name="images"
@@ -482,21 +513,7 @@ export default function page() {
         />
         </Flex>
       </FormItem>
-      <Form.Item>
-        <div className="mt-5 p-0 mb-0 w-full flex items-center justify-end">
-          <CustomButton
-            htmlType="submit"
-            loading={products?.loading}
-            type="primary"
-            children={
-              action === ACTIONS.ADD
-                ? 'Submit Product'
-                : action === ACTIONS.EDIT && 'Save Changes'
-            }
-          />
-        </div>
-      </Form.Item>
-      </div>) : (
+      </div>) : action === ACTIONS.IMGDELETE ? (
       <>
         {listFile?.length > 0 ? (<div>
           <Image.PreviewGroup
@@ -531,8 +548,64 @@ export default function page() {
           )}
         </div>) : (<p>No Images being saved</p>)}
       </>
+      ) : action === ACTIONS.MULTIDELETE ? (
+        <div>
+          <CustomLabel
+            variant="text"
+            children={
+              <span>
+                {' '}
+                Are you sure? Do you really want to{' '}
+                delete{' '}
+                all selected products{' '}
+              </span>
+            }
+            classes="text-lg"
+          />
+        </div>
+      ) : (
+        <div>
+          <CustomLabel
+            variant="text"
+            children={
+              <span>
+                {' '}
+                Are you sure? Do you really want to{' '}
+                {action === ACTIONS.DELETE
+                  ? 'delete'
+                  : 'restore'}{' '}
+                this products{' '}
+                <span className="font-semibold">{getValues('name')}</span>
+              </span>
+            }
+            classes="text-lg"
+          />
+        </div>
       )}
-
+      {action !== ACTIONS.IMGDELETE && <Form.Item>
+        <div className="mt-5 p-0 mb-0 w-full flex items-center justify-end">
+          <CustomButton
+            htmlType="submit"
+            loading={products?.loading}
+            type="primary"
+            danger={
+              action === ACTIONS.DELETE &&
+              getValues('status') === STATUS.AVAILABLE
+            }
+            children={
+              action === ACTIONS.ADD
+                ? 'Submit'
+                : action === ACTIONS.EDIT
+                ? 'Save Changes'
+                : action === ACTIONS.DELETE
+                ? 'Delete'
+                : action === ACTIONS.MULTIDELETE
+                ? 'Delete all selected'
+                : 'Restore'
+            }
+          />
+        </div>
+      </Form.Item>}
     </Form>
   );
 
@@ -542,7 +615,10 @@ export default function page() {
 
   const rowSelection = {
     selectedRowKeys,
-    onChange: onSelectChange
+    onChange: onSelectChange,
+    getCheckboxProps: (record: any) => ({
+      disabled: record.isDeleted === true, 
+    }),
   };
   const productData = products?.items?.map(data => ({
     ...data,
@@ -579,8 +655,19 @@ export default function page() {
       </div>
       <div className="mt-14 space-y-5">
         <Tabs defaultActiveKey="0" items={items} onChange={onChangeTab} />
-        <div className="w-full">
-          <div className='flex justify-between items-end gap-8 flex-wrap'>
+        <div className="w-full flex gap-4 justify-between flex-wrap">
+          <div className='w-52'>
+          {selectedRowKeys.length > 0 &&
+            <CustomButton
+            icon={<MdDelete />}
+            size="large"
+            danger
+            children="Delete Selected"
+            onClick={() => showModal(ACTIONS.MULTIDELETE)}
+          />
+          }
+          </div>
+          <div className='flex grow justify-between items-end gap-8 flex-wrap'>
             <div className='flex gap-4 flex-1'>
             <Select
               value={filter.brandId ? filter.brandId : 'Select Brand'}
@@ -608,9 +695,7 @@ export default function page() {
               onChange={useDebounce(onSetFilter)}
             />
             </div>
-
           </div>
-
         </div>
         <CustomTable
           columns={columns}

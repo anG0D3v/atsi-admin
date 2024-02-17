@@ -6,7 +6,7 @@ import React, {
   useState,
 } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery,useQueryClient } from '@tanstack/react-query';
 import { Form, Tabs,  type TabsProps } from 'antd';
 import _ from 'lodash';
 import { type SubmitHandler, useForm } from 'react-hook-form';
@@ -14,7 +14,6 @@ import { FormItem } from 'react-hook-form-antd';
 import { BsFileEarmarkPerson } from 'react-icons/bs';
 import { MdDelete } from 'react-icons/md';
 import { PiPlus } from 'react-icons/pi';
-import { RiDeleteBin5Fill } from 'react-icons/ri';
 import { type z } from 'zod';
 import { CustomLabel, CustomButton, CustomInput, CustomTable, CustomTag, CustomModal } from '@/components';
 import { ACTIONS } from '@/config/utils/constants';
@@ -26,7 +25,8 @@ import useStore from '@/zustand/store/store';
 import {
   fetchUserList, selector,
   deleteUser,
-  addUser
+  addUser,
+  restoreUser
 } from '@/zustand/store/store.provider';
 
 type TValidationSchema = z.infer<typeof userValidator>;
@@ -38,12 +38,14 @@ export default function page() {
     type:''
   });
   const [open, setOpen] = useState(false);
+  const queryClient = useQueryClient();
   const users = useStore(selector('userList'));
   const [action, setAction] = useState<string>(ACTIONS.ADD);
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
-  const { handleSubmit, control, reset } =
+  const { handleSubmit, control, reset,getValues,setValue } =
   useForm<TValidationSchema>({
     defaultValues: {
+      id:'',
       username:'',
       email:'',
       password: ''
@@ -66,14 +68,26 @@ export default function page() {
     },
   ];
 
-  const showModal = useCallback((act:string) => {
+  const showModal = useCallback((act:string,data?:any) => {
     setOpen(true);
-    setAction(act)
+    setAction(act);
+    console.log(act)
+    if(act === ACTIONS.DELETE || act === ACTIONS.MULTIDELETE || act === ACTIONS.RESTORE){
+      setValue('username',data?.username)
+      setValue('email',data?.email)
+      setValue('password',data?.password)
+      setValue('id',data?.id)
+    }
+    
   }, []);
 
   const userMutation = useMutation({
     mutationFn:
-      async (info: object) => await addUser(info),
+      action === ACTIONS.ADD
+      ? async (info: object) => await addUser(info)
+      : (action === ACTIONS.DELETE || action === ACTIONS.MULTIDELETE)
+      ? async(info:object) => await deleteUser(info)
+      : async(info: object) => await restoreUser(info),
     onSuccess: () => {
       setOpen(false);
       reset({
@@ -81,6 +95,8 @@ export default function page() {
         email:'',
         password: '',
       });
+      setSelectedRowKeys([])
+      queryClient.invalidateQueries({ queryKey: ['userList'] });
     },
     onError: (error) => {
       console.log(error);
@@ -89,9 +105,22 @@ export default function page() {
 
   const onSubmit: SubmitHandler<TValidationSchema> = useCallback(
     (data) => {
-        userMutation.mutate(data);
+      console.log(data)
+      console.log(action)
+        const formData = new FormData();
+        if(action === ACTIONS.ADD){
+          formData.append('username',data.username)
+          formData.append('email',data.email)
+          formData.append('password',data.password)
+        }else if(action === ACTIONS.DELETE || action === ACTIONS.RESTORE){
+          console.log('her')
+          formData.append('ids[]',data?.id)
+        }else if(action === ACTIONS.MULTIDELETE){
+          selectedRowKeys?.map(item => formData.append('ids[]',item))
+        }
+        userMutation.mutate(formData);
     },
-    [],
+    [action, userMutation, selectedRowKeys],
   );
 
   const { data: userlistData, isLoading } = useQuery({
@@ -105,6 +134,7 @@ export default function page() {
       email:'',
       password: ''
     });
+    setSelectedRowKeys([])
   }, []);
 
   const onChangeTab = (key: string) => {
@@ -134,7 +164,7 @@ export default function page() {
 
   const renderModalContent = () => (
     <Form onFinish={handleSubmit(onSubmit)} className="mt-5">
-      <FormItem name="username" control={control}>
+      {(action !== ACTIONS.DELETE && action !== ACTIONS.RESTORE && action !== ACTIONS.MULTIDELETE) ? (<><FormItem name="username" control={control}>
         <CustomInput
           size="large"
           label="Username"
@@ -157,7 +187,38 @@ export default function page() {
           placeholder="Ex. password"
           type="text"
         />
-      </FormItem>
+      </FormItem></>) : action === ACTIONS.MULTIDELETE ? (
+        <div>
+          <CustomLabel
+            variant="text"
+            children={
+              <span>
+                {' '}
+                Are you sure? Do you really want to{' '}
+                delete{' '}
+                all selected users{' '}
+              </span>
+            }
+            classes="text-lg"
+          />
+        </div>
+      ) : (
+        <div>
+          <CustomLabel
+            variant="text"
+            children={
+              <span>
+                {' '}
+                Are you sure? Do you really want to{' '}
+                {action === ACTIONS.DELETE ? 'Delete' : 'Restore'} {' '}
+                this user{' '}
+                <span className="font-semibold">{getValues('username')}</span>
+              </span>
+            }
+            classes="text-lg"
+          />
+        </div>
+      )}
 
       <Form.Item>
         <div className="mt-5 p-0 mb-0 w-full flex items-center justify-end">
@@ -165,7 +226,15 @@ export default function page() {
             htmlType="submit"
             loading={users?.loading}
             type="primary"
-            children={'Submit'}
+            children={
+              action === ACTIONS.ADD
+                ? 'Submit'
+                : action === ACTIONS.DELETE
+                ? 'Delete'
+                : action === ACTIONS.MULTIDELETE
+                ? 'Delete all selected'
+                : 'Restore'
+            }
           />
         </div>
       </Form.Item>
@@ -185,13 +254,13 @@ export default function page() {
     },
     {
       key: 2,
-      dataIndex: 'status',
+      dataIndex: 'isDeleted',
       title: 'Status',
       render: (data: string, index: number) => (
         <CustomTag
           key={index}
-          children={data}
-          color={data === 'Active' ? 'green' : 'red'}
+          children={!data ? 'Active' : 'Deleted'}
+          color={!data ? 'green' : 'error'}
         />
       ),
     },
@@ -217,15 +286,10 @@ export default function page() {
       render: (data: any, index: number) => (
         <div className="flex flex-row items-center gap-2 w-full" key={index}>
           <CustomButton
-            type="primary"
-            children={data.status === 'Active' ? 'Active' : 'Inactive'}
-            onClick={async() => await deleteUser(data)}
-          />
-          <CustomButton
             type="dashed"
-            danger
-            children={<RiDeleteBin5Fill />}
-            onClick={async() => await deleteUser(data)}
+            children={!data?.isDeleted ? 'Delete' : 'Restore'}
+            danger={!data?.isDeleted}
+            onClick={() => showModal(!data?.isDeleted ? ACTIONS.DELETE : ACTIONS.RESTORE, data)}
           />
         </div>
       ),
@@ -238,13 +302,16 @@ export default function page() {
 
   const rowSelection = {
     selectedRowKeys,
-    onChange: onSelectChange
+    onChange: onSelectChange,
+    getCheckboxProps: (record: any) => ({
+      disabled: record.isDeleted === true, 
+    }),
   };
   const userData = users?.list?.map(data => ({
     ...data,
     key:data.id
   }))
-  console.log(action)
+  console.log(getValues())
   return (
     <div>
       <div className="flex items-center justify-between">

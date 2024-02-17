@@ -10,14 +10,19 @@ const CategoriesServices = {
     await axiosInstance.post(Api.CATEGORIES().ADD_CATEGORY, data),
   updateCategory: async (data: any) =>
     await axiosInstance.put(
-      Api.CATEGORIES().UPDATE_CATEGORY + `/${data?.id}`,
+      Api.CATEGORIES().UPDATE_CATEGORY + `/${data?.get('id')}`,
       data,
     ),
   deleteCategory: async (data: any) =>
     await axiosInstance.delete(
-      Api.CATEGORIES().DELETE_CATEGORY + `/${data?.id}`,
+      Api.CATEGORIES().DELETE_CATEGORY,
       { data },
     ),
+    restoreCategories: async(data:any) =>
+    await axiosInstance.put(
+      Api.CATEGORIES().RESTORE_CATEGORY,
+      data
+    )
 };
 
 export default CategoriesServices;
