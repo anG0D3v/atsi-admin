@@ -30,7 +30,12 @@ export const {
   restoreUser,
   restoreCategory,
   deleteProduct,
-  restoreProduct
+  restoreProduct,
+  fetchBlogs,
+  addBlogs,
+  updateBlogs,
+  deleteBlogs,
+  restoreBlogs
 } = storeProvider;
 
 export { selector, storeProvider };

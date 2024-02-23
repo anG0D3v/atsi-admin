@@ -6,5 +6,6 @@ export const Routes = {
   Categories: dashboard('/categories'),
   Products: dashboard('/products'),
   Users: dashboard('/users'),
+  Web:dashboard('/web'),
   Login: ('/')
 };

@@ -37,6 +37,15 @@ const Api = {
     RESTORE_PRODUCTS: ApiEndpoint(base + '/restore')
   }),
 
+  WEB: (base = '/blogs') => ({
+    ALL: ApiEndpoint(base + '/all'),
+    ADD_BLOGS: ApiEndpoint(base + '/add'),
+    BLOG_INFO_BY_ID: ApiEndpoint(base + '/info/'),
+    UPDATE_BLOGS: ApiEndpoint(base + '/update'),
+    DELETE_BLOGS: ApiEndpoint(base + '/delete'),
+    RESTORE_BLOGS: ApiEndpoint(base + '/restore')
+  })
+
 };
 
 export default Api;

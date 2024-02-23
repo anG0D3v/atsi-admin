@@ -56,3 +56,16 @@ export interface IUserDTO {
   updatedAt: Date | null;
   type: string;
 }
+
+export interface IWebDTO {
+  id:string;
+  title: string;
+  content: string;
+  imageUrl: string;
+  createdBy: string;
+  createdAt: Date;
+  updatedBy: string | null;
+  updatedAt: Date | null;
+  isDeleted: boolean;
+  
+}

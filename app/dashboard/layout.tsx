@@ -11,7 +11,7 @@ import { BsFillBoxSeamFill } from 'react-icons/bs';
 import { FaUsers } from 'react-icons/fa6';
 import { MdOutlineEdit } from 'react-icons/md';
 import { PiSignOutBold } from 'react-icons/pi';
-import { TbBrandFramerMotion, TbCategoryFilled } from 'react-icons/tb';
+import { TbBrandFramerMotion, TbCategoryFilled,TbWorldWww } from 'react-icons/tb';
 import { type z } from 'zod';
 import { CustomAvatar, CustomButton, CustomInput, CustomLabel, CustomModal } from '@/components';
 import { Routes } from '@/config/routes/routes';
@@ -47,11 +47,8 @@ const items: MenuItem[] = [
   getItem('Categories', '1', <TbCategoryFilled />),
   getItem('Products', '2', <BsFillBoxSeamFill />),
   getItem('Users', '3', <FaUsers />),
-  // getItem('Web Management', '4', <TbWorldWww />, [
-  //   getItem('Social Media Accounts', '5'),
-  //   getItem('Business Information', '6'),
-  // ]),
-  getItem('Sign Out', '4', <PiSignOutBold />),
+  getItem('Web Management','4',<TbWorldWww />),
+  getItem('Sign Out', '5', <PiSignOutBold />),
 ];
 
 interface Props {
@@ -109,11 +106,14 @@ export default function RootLayout({ children }: Props) {
       case '3':
         navigate.push(Routes.Users);
         break;
-        case '4':
-          handleSignOut();
-          break;
-        default:
-          break;
+      case '4':
+        navigate.push(Routes.Web);
+        break;
+      case '5':
+        handleSignOut();
+        break;
+      default:
+        break;
     }
   }, []);
 
@@ -186,6 +186,7 @@ export default function RootLayout({ children }: Props) {
       </Form.Item>
     </Form>
   );
+  console.log(currentPathname)
   return (
     <section>
       <Layout className="h-max min-h-screen">
@@ -236,7 +237,10 @@ export default function RootLayout({ children }: Props) {
                   : currentPathname === Routes.Products
                   ? '2'
                   : currentPathname === Routes.Users
-                  ? '3' : '0',
+                  ? '3' 
+                  : currentPathname === Routes.Web
+                  ? '4'
+                  : '0',
               ]}
               mode="inline"
               items={items}

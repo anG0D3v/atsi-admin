@@ -3,6 +3,7 @@ import createCategoriesSlice from './categories';
 import createProductsSlice from './products';
 import createUserSlice from './user';
 import createUserListSlice from './userlist';
+import createWebSlice from './web';
 
 export {
   createBrandSlice,
@@ -10,4 +11,5 @@ export {
   createProductsSlice,
   createUserListSlice,
   createUserSlice,
+  createWebSlice
 };
