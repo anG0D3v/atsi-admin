@@ -47,7 +47,7 @@ const items: MenuItem[] = [
   getItem('Categories', '1', <TbCategoryFilled />),
   getItem('Products', '2', <BsFillBoxSeamFill />),
   getItem('Users', '3', <FaUsers />),
-  getItem('Web Management','4',<TbWorldWww />),
+  getItem('Blogs','4',<TbWorldWww />),
   getItem('Sign Out', '5', <PiSignOutBold />),
 ];
 

@@ -30,7 +30,7 @@ import {
   CustomUploader,
 } from '@/components';
 import { ACTIONS } from '@/config/utils/constants';
-import { dateFormatter, useDebounce } from '@/config/utils/util';
+import { useDebounce } from '@/config/utils/util';
 import { type IWebDTO } from '@/interfaces/global';
 import WebServices from '@/services/web';
 import brandValidator from '@/validations/brand';
@@ -132,38 +132,6 @@ export default function page() {
     },
     {
       key: 4,
-      dataIndex: 'updatedByUser',
-      title: 'Updated By',
-      render: (data: any, index: number) => (
-        <span key={index}>{data?.username ?? 'N/A'}</span>
-      ),
-    },
-    {
-      key: 5,
-      dataIndex: 'createdAt',
-      title: 'Date Added',
-      render: (data: any, index: number) => (
-        <span key={index}>{dateFormatter(data)}</span>
-      ),
-    },
-    {
-      key: 6,
-      dataIndex: 'updatedAt',
-      title: 'Date Modified',
-      render: (data: any, index: number) => (
-        <span key={index}>{!_.isNil(data) ? dateFormatter(data) : 'N/A'}</span>
-      ),
-    },
-    {
-      key: 7,
-      dataIndex: 'content',
-      title: 'Content',
-      render: (data: any, index: number) => (
-        <span key={index}>{data}</span>
-      ),
-    },
-    {
-      key: 8,
       title: 'Action',
       render: (data: any, index: number) => (
         <div className="flex flex-row items-center gap-2 w-full" key={index}>
