@@ -202,7 +202,7 @@ export default function page() {
              type="dashed"
              danger
             children="Delete Images"
-            onClick={() => showModal(ACTIONS.DELETE,data)}
+            onClick={() => showModal(ACTIONS.IMGDELETE,data)}
           />
           <CustomButton
              type="dashed"
@@ -674,7 +674,7 @@ export default function page() {
               onChange={(value) =>{handleSelection({value},'brandId')}}
               optionLabelProp='label'
               size='large'
-              className='w-max min-w-60'
+              className='w-52 min-w-60'
               options={(brands?.items?.map((option: { id: any; name: any; }) => ({value: option.id,label:option.name})))}
             />
             <Select
@@ -682,7 +682,7 @@ export default function page() {
               onChange={(value) =>{handleSelection({value},'categoryId')}}
               optionLabelProp='label'
               size='large'
-              className='w-max min-w-60'
+              className='w-52 min-w-60'
               options={(categories?.items?.map((option: { id: any; name: any; }) => ({value: option.id,label:option.name})))}
             />
             </div>
