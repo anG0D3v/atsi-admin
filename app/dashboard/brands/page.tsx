@@ -56,16 +56,12 @@ export default function page() {
 
   const items: TabsProps['items'] = [
     {
-      key: '',
-      label: 'All',
-    },
-    {
       key: STATUS.ACTIVE,
       label: 'Active',
     },
     {
       key: STATUS.INACTIVE,
-      label: 'Inactive',
+      label: 'Deleted',
     },
   ];
   const user = useStore(selector('user'));

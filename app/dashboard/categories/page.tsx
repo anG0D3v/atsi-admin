@@ -50,16 +50,12 @@ export default function page() {
   const [open, setOpen] = useState(false);
   const items: TabsProps['items'] = [
     {
-      key: '',
-      label: 'All',
-    },
-    {
       key: STATUS.AVAILABLE,
       label: 'Available',
     },
     {
       key: STATUS.UNAVAILABLE,
-      label: 'Unavailable',
+      label: 'Deleted',
     },
   ];
   const user = useStore(selector('user'));

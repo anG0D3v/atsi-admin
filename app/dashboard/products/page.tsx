@@ -93,16 +93,12 @@ export default function page() {
   });
   const items: TabsProps['items'] = [
     {
-      key: '',
-      label: 'All',
-    },
-    {
       key: STATUS.AVAILABLE,
       label: 'Available',
     },
     {
       key: STATUS.UNAVAILABLE,
-      label: 'Unavailable',
+      label: 'Deleted',
     },
     {
       key: STATUS.OUT_OF_STOCK,
