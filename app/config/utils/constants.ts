@@ -36,7 +36,7 @@ const STATUS = {
   ACTIVE: 'Active',
   INACTIVE: 'Inactive',
   AVAILABLE: 'Available',
-  UNAVAILABLE: 'Unavailable',
+  UNAVAILABLE: 'Deleted',
   OUT_OF_STOCK: 'Out_of_Stock',
 };
 
