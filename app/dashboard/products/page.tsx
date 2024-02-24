@@ -348,6 +348,7 @@ export default function page() {
         formData.append('stock', getValues('stock').toString());
         formData.append('shoppeeLink', getValues('shoppeeLink'));
         formData.append('lazadaLink', getValues('lazadaLink'));
+        formData.append('discount',getValues('discount').toString());
         formData.append('status', getValues('status'));
         formData.append('isSaleProduct', getValues('isSaleProduct').toString());
         // eslint-disable-next-line array-callback-return
