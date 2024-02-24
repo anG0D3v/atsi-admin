@@ -4,7 +4,7 @@ import axiosInstance from '@/config/axios/axiosInstance';
 const UserListSevices = {
     fetchAll: async (data:any) =>
     await axiosInstance.get(
-        Api.USER().USER_LIST + `?username=${data?.username}&status=${data?.status}&type=${data?.type}`
+        Api.USER().USER_LIST + `?username=${data?.username}&status=${data?.status}&type=${data?.type}&isDeleted=${data?.isDeleted || false}`
     ),
     deleteUser: async (data: any) => 
      await axiosInstance.delete(Api.USER().DELETE_USER, {data})

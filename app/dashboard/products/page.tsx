@@ -299,10 +299,18 @@ export default function page() {
   }, [action]);
 
   const onChangeTab = (key: string) => {
-    setFilter((prevState) => ({
-      ...prevState,
-      status: key,
-    }));
+    if(key === 'Deleted'){
+      setFilter((prevState) => ({
+        ...prevState,
+        isDeleted: true,
+      }));
+    }else{
+      setFilter((prevState) => ({
+        ...prevState,
+        status: key,
+        isDeleted: false,
+      }));
+    }
   };
 
   const onSetFilter = useCallback((e: ChangeEvent<HTMLInputElement>) => {

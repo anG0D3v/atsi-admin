@@ -4,7 +4,7 @@ import axiosInstance from '@/config/axios/axiosInstance';
 const BrandServices = {
   fetchAll: async (data: any) =>
     await axiosInstance.get(
-      Api.BRAND().ALL + `?name=${data?.name}&status=${data?.status}`,
+      Api.BRAND().ALL + `?name=${data?.name}&status=${data?.status}&isDeleted=${data?.isDeleted || false}`,
     ),
   addBrand: async (data: any) =>
     await axiosInstance.post(Api.BRAND().ADD_BRAND, data),

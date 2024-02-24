@@ -138,10 +138,18 @@ export default function page() {
   }, []);
 
   const onChangeTab = (key: string) => {
-    setFilter((prevState) => ({
-      ...prevState,
-      type: key,
-    }));
+    if(key === 'Deleted'){
+      setFilter((prevState) => ({
+        ...prevState,
+        isDeleted: true,
+      }));
+    }else{
+      setFilter((prevState) => ({
+        ...prevState,
+        type: key,
+        isDeleted: false,
+      }));
+    }
   };
 
   useLayoutEffect(() => {

@@ -34,7 +34,7 @@ const ACTIONS = {
 
 const STATUS = {
   ACTIVE: 'Active',
-  INACTIVE: 'Inactive',
+  INACTIVE: 'Deleted',
   AVAILABLE: 'Available',
   UNAVAILABLE: 'Deleted',
   OUT_OF_STOCK: 'Out_of_Stock',

@@ -258,10 +258,19 @@ export default function page() {
   }, []);
 
   const onChangeTab = (key: string) => {
-    setFilter((prevState) => ({
-      ...prevState,
-      status: key,
-    }));
+    if(key === 'Deleted'){
+      setFilter((prevState) => ({
+        ...prevState,
+        isDeleted: true,
+      }));
+    }else{
+      setFilter((prevState) => ({
+        ...prevState,
+        status: key,
+        isDeleted: false,
+      }));
+    }
+
   };
 
   const beforeUpload = (file: RcFile) => {
@@ -484,7 +493,7 @@ export default function page() {
     key:data.id
   }))
 
-  console.log(getValues())
+  console.log(filter)
 
   return (
     <div className="">
