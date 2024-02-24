@@ -497,7 +497,7 @@ export default function page() {
         <CustomInput size="middle" min={0} label="Discount (%)" type="number" />
       </FormItem>
       <FormItem name="isSaleProduct" control={control}>
-        <Checkbox>Is sale product?</Checkbox>
+        <Checkbox checked={getValues('isSaleProduct')}>Is sale product?</Checkbox>
       </FormItem>
       <FormItem name="status" control={control}>
         
@@ -620,7 +620,7 @@ export default function page() {
     ...data,
     key:data.id
   }))
-  console.log(selectedRowKeys)
+  console.log(getValues())
   return (
     <div className='h-max'>
       <div className="flex items-center justify-between">
