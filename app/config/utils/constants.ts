@@ -36,8 +36,10 @@ const STATUS = {
   ACTIVE: 'Active',
   INACTIVE: 'Deleted',
   AVAILABLE: 'Available',
-  UNAVAILABLE: 'Deleted',
+  UNAVAILABLE: 'isDeleted',
   OUT_OF_STOCK: 'Out_of_Stock',
+  NEW_RELEASE: 'isNewRelease',
+  SALE_PRODUCT:'isSaleProduct'
 };
 
 const QUILL_FORMATS = [

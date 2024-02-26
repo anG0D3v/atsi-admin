@@ -74,6 +74,7 @@ export default function page() {
         discount: 0,
         price: 0,
         isSaleProduct: false,
+        isNewRelease:false,
         images: [],
       },
       resolver: zodResolver(productValidator),
@@ -89,20 +90,31 @@ export default function page() {
     name: '',
     status: '',
     brandId:'',
-    categoryId:''
+    categoryId:'',
+    isDeleted:false,
+    isNewRelease:false,
+    isSaleProduct:false
   });
   const items: TabsProps['items'] = [
     {
       key: STATUS.AVAILABLE,
-      label: 'Available',
+      label: 'Available'
     },
     {
-      key: STATUS.UNAVAILABLE,
-      label: 'Deleted',
+      key: STATUS.NEW_RELEASE,
+      label: 'New Releases'
+    },
+    {
+      key: STATUS.SALE_PRODUCT,
+      label: 'Sale Products'
     },
     {
       key: STATUS.OUT_OF_STOCK,
-      label: 'Out of Stock',
+      label: 'Out of Stock'
+    },
+    {
+      key: STATUS.UNAVAILABLE,
+      label: 'Deleted'
     },
   ];
   const columns = [
@@ -193,18 +205,21 @@ export default function page() {
             type="primary"
             children="Edit"
             onClick={() => showModal(ACTIONS.EDIT,data)}
+            classes='w-32'
           />
           <CustomButton
              type="dashed"
              danger
             children="Delete Images"
             onClick={() => showModal(ACTIONS.IMGDELETE,data)}
+            classes='w-32'
           />
           <CustomButton
              type="dashed"
              children={!data?.isDeleted ? 'Delete Product' : 'Restore Product'}
              danger={!data?.isDeleted}
              onClick={() => showModal(!data?.isDeleted ? ACTIONS.DELETE : ACTIONS.RESTORE, data)}
+             classes='w-32'
           />
         </div>
       ),
@@ -213,6 +228,7 @@ export default function page() {
 
   const status = watch('status');
   const isSaleProduct = watch('isSaleProduct');
+  const isNewRelease = watch('isNewRelease');
   const { data: productsData, isLoading } = useQuery({
     queryKey: ['products', filter],
     queryFn: async () => await ProductsService.fetchAll(filter),
@@ -290,6 +306,7 @@ export default function page() {
       setValue('discount',data?.discount ? data?.discount : 0)
       setValue('price',data?.price)
       setValue('isSaleProduct',data?.isSaleProduct)
+      setValue('isNewRelease',data?.isNewRelease)
       setValue('images',data?.media)
     }
     if(act === ACTIONS.IMGDELETE){
@@ -300,10 +317,10 @@ export default function page() {
   }, [action]);
 
   const onChangeTab = (key: string) => {
-    if(key === 'Deleted'){
+    if(key === STATUS.UNAVAILABLE || key === STATUS.NEW_RELEASE || key === STATUS.SALE_PRODUCT){
       setFilter((prevState) => ({
         ...prevState,
-        isDeleted: true,
+        [key]: true,
       }));
     }else{
       setFilter((prevState) => ({
@@ -360,6 +377,7 @@ export default function page() {
         formData.append('discount',getValues('discount').toString());
         formData.append('status', getValues('status'));
         formData.append('isSaleProduct', isSaleProduct ? 'true' : 'false');
+        formData.append('isNewRelease', isNewRelease ? 'true' : 'false');
         // eslint-disable-next-line array-callback-return
         images?.fileList?.map((file: { originFileObj: string | Blob; }) => {
           formData.append('file', file?.originFileObj)
@@ -505,6 +523,9 @@ export default function page() {
       </div>
       <FormItem name="discount" control={control}>
         <CustomInput size="middle" min={0} label="Discount (%)" type="number" />
+      </FormItem>
+      <FormItem name="isNewRelease" control={control}>
+        <Checkbox defaultChecked={getValues('isNewRelease')} onChange={(e) => setValue('isNewRelease', e.target.checked)} >Is product new release?</Checkbox>
       </FormItem>
       <FormItem name="isSaleProduct" control={control}>
         <Checkbox defaultChecked={getValues('isSaleProduct')} onChange={(e) => setValue('isSaleProduct', e.target.checked)} >Is sale product?</Checkbox>

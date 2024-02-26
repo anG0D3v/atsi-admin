@@ -37,6 +37,7 @@ const productValidator = z.object({
   discount: z.coerce.number().optional(),
   price: z.coerce.number().positive().gt(0).optional(),
   isSaleProduct: z.boolean().default(false).optional(),
+  isNewRelease: z.boolean().default(false).optional(),
   images: z.any().optional(),
 });
 
