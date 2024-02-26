@@ -212,6 +212,7 @@ export default function page() {
   ];
 
   const status = watch('status');
+  const isSaleProduct = watch('isSaleProduct');
   const { data: productsData, isLoading } = useQuery({
     queryKey: ['products', filter],
     queryFn: async () => await ProductsService.fetchAll(filter),
@@ -358,7 +359,7 @@ export default function page() {
         formData.append('lazadaLink', getValues('lazadaLink'));
         formData.append('discount',getValues('discount').toString());
         formData.append('status', getValues('status'));
-        formData.append('isSaleProduct', getValues('isSaleProduct').toString());
+        formData.append('isSaleProduct', isSaleProduct ? 'true' : 'false');
         // eslint-disable-next-line array-callback-return
         images?.fileList?.map((file: { originFileObj: string | Blob; }) => {
           formData.append('file', file?.originFileObj)
@@ -506,7 +507,7 @@ export default function page() {
         <CustomInput size="middle" min={0} label="Discount (%)" type="number" />
       </FormItem>
       <FormItem name="isSaleProduct" control={control}>
-        <Checkbox checked={getValues('isSaleProduct')}>Is sale product?</Checkbox>
+        <Checkbox defaultChecked={getValues('isSaleProduct')} onChange={(e) => setValue('isSaleProduct', e.target.checked)} >Is sale product?</Checkbox>
       </FormItem>
       <FormItem name="status" control={control}>
         
@@ -629,7 +630,7 @@ export default function page() {
     ...data,
     key:data.id
   }))
-  console.log(getValues())
+  console.log(getValues('isSaleProduct'))
   return (
     <div className='h-max'>
       <div className="flex items-center justify-between">
