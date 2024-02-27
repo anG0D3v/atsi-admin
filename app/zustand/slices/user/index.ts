@@ -1,4 +1,4 @@
-
+import toast from 'react-hot-toast';
 import { type StateCreator } from 'zustand/vanilla';
 import { UserServices } from '@/services';
 
@@ -25,12 +25,22 @@ const createUserSlice: StateCreator<UserSlice> = (set) => ({
   user: initialState,
   login: async (payload: any) => {
     try {
+      set((state) => ({ ...state, user: { ...state?.user, loading: true } }));
       const response = await UserServices.login(payload);
       if (response.status === 200) {
         if (!('message' in response.data)) {
-          set((state) => ({ user: response?.data?.data }));
+          set((state) => ({
+            ...state,
+            user: {
+              ...state?.user,
+              loading: false,
+              info: response?.data?.data,
+            },
+          }));
+          toast.success('Login Success');
           return response;
         }
+        toast.error('Access Denied');
       }
     } catch (error) {
       console.log('Error at: ', error);
@@ -80,17 +90,15 @@ const createUserSlice: StateCreator<UserSlice> = (set) => ({
       }));
     }
   },
-  logout: async() =>{
+  logout: async () => {
     try {
       set((state: UserSlice) => ({
-        user: initialState, 
+        user: initialState,
       }));
     } catch (error) {
       console.error('Logout error:', error);
     }
-
   },
-
 });
 
 export default createUserSlice;

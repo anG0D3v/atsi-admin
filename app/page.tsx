@@ -1,56 +1,58 @@
 'use client';
-import { useCallback, useLayoutEffect } from 'react';
+import { useCallback, useEffect } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Form } from 'antd';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import { signIn, useSession } from 'next-auth/react';
+// import { signIn, useSession } from 'next-auth/react';
 import { useForm, type SubmitHandler } from 'react-hook-form';
 import { FormItem } from 'react-hook-form-antd';
-import toast, { Toaster } from 'react-hot-toast';
+import { Toaster } from 'react-hot-toast';
 import type z from 'zod';
 import { Routes } from './config/routes/routes';
 import useStore from './zustand/store/store';
-import { saveUserInfo, selector } from './zustand/store/store.provider';
+import { login, selector } from './zustand/store/store.provider';
 import { CustomButton, CustomInput, CustomLabel } from '@/components';
 import { authValidator } from '@/validations/auth';
 
 type ValidationSchema = z.infer<typeof authValidator>;
 
 export default function Page() {
-  const session = useSession();
+  // const session = useSession();
   const user = useStore(selector('user'));
   const { handleSubmit, control } = useForm<ValidationSchema>({
     resolver: zodResolver(authValidator),
   });
   const navigate = useRouter();
-  useLayoutEffect(() => {
-    if (session) {
-      saveUserInfo(session?.data);
+
+  useEffect(() => {
+    if (user?.info) {
+      navigate.push(Routes.Brands);
     }
-  }, [session]);
+  }, [user]);
+
   // Functions
   const onSubmit: SubmitHandler<ValidationSchema> = useCallback(
     async (data) => {
-      const res = await signIn('credentials', {
-        username: data.username,
-        password: data.password,
-        callbackUrl: '/',
-        redirect: false,
-      });
-      console.log(res)
-      if (res.error === 'AccessDenied' && res.status === 403) {
-        saveUserInfo(res.error);
-        toast.error(res.error);
-      } else {
-        toast.success('Login Success!');
-        navigate.push(Routes.Brands);
-      }
+      // const res = await signIn('credentials', {
+      //   username: data.username,
+      //   password: data.password,
+      //   callbackUrl: '/',
+      //   redirect: false,
+      // });
+      // console.log(res)
+      // if (res.error === 'AccessDenied' && res.status === 403) {
+      //   saveUserInfo(res.error);
+      //   toast.error(res.error);
+      // } else {
+      //   toast.success('Login Success!');
+      //   navigate.push(Routes.Brands);
+      // }
+      login(data);
     },
-
-    [user],
+    [],
   );
-  console.log(user)
+  console.log('eto: ', user);
   return (
     <div className="flex flex-row h-screen items-center justify-center relative max-xl:p-10">
       <Toaster />
