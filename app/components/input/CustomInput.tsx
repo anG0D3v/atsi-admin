@@ -17,6 +17,7 @@ interface CustomInputProps {
   value?: string | undefined;
   min?: number;
   disabled?: boolean;
+  step?: string;
 }
 
 // Define a type for the ref that is compatible with forwardRef
@@ -38,6 +39,7 @@ const CustomInput = forwardRef<InputRef, CustomInputProps>(
             disabled={props.disabled}
             {...props}
             maxLength={45}
+            step={props.step}
             ref={ref}
             className={clsx(props.classes)}
             prefix={props.prefix}

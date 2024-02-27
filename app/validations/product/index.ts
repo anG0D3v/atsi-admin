@@ -19,7 +19,10 @@ const productValidator = z.object({
   updatedBy: z.string().optional(),
   stock: z.coerce.number().optional(),
   brandId: z.string().min(1, { message: 'Should select a brand' }).optional(),
-  categoryId: z.string().min(1, { message: 'Should select a Category' }).optional(),
+  categoryId: z
+    .string()
+    .min(1, { message: 'Should select a Category' })
+    .optional(),
   lazadaLink: z.string().refine(
     (value) => {
       // Check if the lazadaLink is a valid URL when not empty
@@ -27,13 +30,16 @@ const productValidator = z.object({
     },
     { message: 'Invalid Url' },
   ),
-  shoppeeLink: z.string().refine(
-    (value) => {
-      // Check if the shoppeeLink is a valid URL when not empty
-      return !value || isValidUrl(value);
-    },
-    { message: 'Invalid Url' },
-  ).optional(),
+  shoppeeLink: z
+    .string()
+    .refine(
+      (value) => {
+        // Check if the shoppeeLink is a valid URL when not empty
+        return !value || isValidUrl(value);
+      },
+      { message: 'Invalid Url' },
+    )
+    .optional(),
   discount: z.coerce.number().optional(),
   price: z.coerce.number().positive().gt(0).optional(),
   isSaleProduct: z.boolean().default(false).optional(),

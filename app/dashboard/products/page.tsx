@@ -7,8 +7,17 @@ import React, {
 } from 'react';
 import { PlusOutlined } from '@ant-design/icons';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useMutation, useQuery,useQueryClient } from '@tanstack/react-query';
-import { Tabs, type TabsProps, Form, Checkbox, Image, Flex,type RadioChangeEvent, Select} from 'antd';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import {
+  Tabs,
+  type TabsProps,
+  Form,
+  Checkbox,
+  Image,
+  Flex,
+  type RadioChangeEvent,
+  Select,
+} from 'antd';
 import { type RcFile } from 'antd/es/upload';
 import _ from 'lodash';
 import Highlighter from 'react-highlight-words';
@@ -31,10 +40,7 @@ import {
 } from '@/components';
 import CustomRadio from '@/components/CustomRadio/customRadio';
 import { ACTIONS, STATUS } from '@/config/utils/constants';
-import {
-  currencyFormat,
-  useDebounce,
-} from '@/config/utils/util';
+import { currencyFormat, useDebounce } from '@/config/utils/util';
 import { type IProductsDTO } from '@/interfaces/global';
 import { ProductsService } from '@/services';
 import productValidator from '@/validations/product';
@@ -46,7 +52,7 @@ import {
   loadProducts,
   restoreProduct,
   selector,
-  updateProduct
+  updateProduct,
 } from '@/zustand/store/store.provider';
 
 type ValidationSchema = z.infer<typeof productValidator>;
@@ -57,8 +63,8 @@ export default function page() {
   const categories = useStore(selector('categories'));
   const products = useStore(selector('products'));
   const queryClient = useQueryClient();
-  const { handleSubmit, control, getValues, reset,setValue, watch } = useForm<ValidationSchema>(
-    {
+  const { handleSubmit, control, getValues, reset, setValue, watch } =
+    useForm<ValidationSchema>({
       defaultValues: {
         id: '',
         name: '',
@@ -74,47 +80,46 @@ export default function page() {
         discount: 0,
         price: 0,
         isSaleProduct: false,
-        isNewRelease:false,
+        isNewRelease: false,
         images: [],
       },
       resolver: zodResolver(productValidator),
-    },
-  );
+    });
   const [isOpenModal, setIsOpenModal] = useState<boolean>(false);
-  const [listFile,setListFile] = useState([]);
-  const [productId,setProductId] = useState('');
+  const [listFile, setListFile] = useState([]);
+  const [productId, setProductId] = useState('');
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
   const [selectedImages, setSelectedImages] = useState([]);
   const [action, setAction] = useState(null);
   const [filter, setFilter] = useState({
     name: '',
     status: '',
-    brandId:'',
-    categoryId:'',
-    isDeleted:false,
-    isNewRelease:false,
-    isSaleProduct:false
+    brandId: '',
+    categoryId: '',
+    isDeleted: false,
+    isNewRelease: false,
+    isSaleProduct: false,
   });
   const items: TabsProps['items'] = [
     {
       key: STATUS.AVAILABLE,
-      label: 'Available'
+      label: 'Available',
     },
     {
       key: STATUS.NEW_RELEASE,
-      label: 'New Releases'
+      label: 'New Releases',
     },
     {
       key: STATUS.SALE_PRODUCT,
-      label: 'Sale Products'
+      label: 'Sale Products',
     },
     {
       key: STATUS.OUT_OF_STOCK,
-      label: 'Out of Stock'
+      label: 'Out of Stock',
     },
     {
       key: STATUS.UNAVAILABLE,
-      label: 'Deleted'
+      label: 'Deleted',
     },
   ];
   const columns = [
@@ -204,22 +209,27 @@ export default function page() {
           <CustomButton
             type="primary"
             children="Edit"
-            onClick={() => showModal(ACTIONS.EDIT,data)}
-            classes='w-32'
+            onClick={() => showModal(ACTIONS.EDIT, data)}
+            classes="w-32"
           />
           <CustomButton
-             type="dashed"
-             danger
+            type="dashed"
+            danger
             children="Delete Images"
-            onClick={() => showModal(ACTIONS.IMGDELETE,data)}
-            classes='w-32'
+            onClick={() => showModal(ACTIONS.IMGDELETE, data)}
+            classes="w-32"
           />
           <CustomButton
-             type="dashed"
-             children={!data?.isDeleted ? 'Delete Product' : 'Restore Product'}
-             danger={!data?.isDeleted}
-             onClick={() => showModal(!data?.isDeleted ? ACTIONS.DELETE : ACTIONS.RESTORE, data)}
-             classes='w-32'
+            type="dashed"
+            children={!data?.isDeleted ? 'Delete Product' : 'Restore Product'}
+            danger={!data?.isDeleted}
+            onClick={() =>
+              showModal(
+                !data?.isDeleted ? ACTIONS.DELETE : ACTIONS.RESTORE,
+                data,
+              )
+            }
+            classes="w-32"
           />
         </div>
       ),
@@ -242,7 +252,7 @@ export default function page() {
         ? async (info: object) => updateProduct(info)
         : action === ACTIONS.IMGDELETE
         ? async (info: object) => deleteProductImg(info)
-        : (action === ACTIONS.DELETE || action === ACTIONS.MULTIDELETE) 
+        : action === ACTIONS.DELETE || action === ACTIONS.MULTIDELETE
         ? async (info: object) => deleteProduct(info)
         : async (info: object) => restoreProduct(info),
     onSuccess: (response) => {
@@ -264,8 +274,8 @@ export default function page() {
         isSaleProduct: false,
         images: [],
       });
-      setSelectedImages([])
-      setSelectedRowKeys([])
+      setSelectedImages([]);
+      setSelectedRowKeys([]);
       queryClient.invalidateQueries({ queryKey: ['products'] });
     },
     onError: (error) => {
@@ -283,46 +293,58 @@ export default function page() {
   };
 
   const onChange = (e: RadioChangeEvent) => {
-    setValue('status',e.target.value);
+    setValue('status', e.target.value);
   };
 
   // Functions
-  const showModal = useCallback((act: string,data?: any) => {
-    setAction(act);
-    setIsOpenModal(true);
-    if(act === ACTIONS.EDIT || act === ACTIONS.DELETE || act === ACTIONS.RESTORE || act === ACTIONS.MULTIDELETE){
-      console.log(data)
-      setValue('id',data?.id)
-      setValue('name',data?.name)
-      setValue('description',data?.description)
-      setValue('status',data?.status)
-      setValue('createdBy',data?.createdBy)
-      setValue('updatedBy',user?.info?.id)
-      setValue('stock',data?.stock)
-      setValue('brandId',data?.brandId)
-      setValue('categoryId',data?.categoryId)
-      setValue('lazadaLink',data?.lazadaLink ? data.lazadaLink : '')
-      setValue('shoppeeLink',data?.shoppeeLink ? data.shoppeeLink : '')
-      setValue('discount',data?.discount ? data?.discount : 0)
-      setValue('price',data?.price)
-      setValue('isSaleProduct',data?.isSaleProduct)
-      setValue('isNewRelease',data?.isNewRelease)
-      setValue('images',data?.media)
-    }
-    if(act === ACTIONS.IMGDELETE){
-      console.log(data?.media)
-      setListFile(data?.media)
-      setProductId(data?.id)
-    }
-  }, [action]);
+  const showModal = useCallback(
+    (act: string, data?: any) => {
+      setAction(act);
+      setIsOpenModal(true);
+      if (
+        act === ACTIONS.EDIT ||
+        act === ACTIONS.DELETE ||
+        act === ACTIONS.RESTORE ||
+        act === ACTIONS.MULTIDELETE
+      ) {
+        console.log(data);
+        setValue('id', data?.id);
+        setValue('name', data?.name);
+        setValue('description', data?.description);
+        setValue('status', data?.status);
+        setValue('createdBy', data?.createdBy);
+        setValue('updatedBy', user?.info?.id);
+        setValue('stock', data?.stock);
+        setValue('brandId', data?.brandId);
+        setValue('categoryId', data?.categoryId);
+        setValue('lazadaLink', data?.lazadaLink ? data.lazadaLink : '');
+        setValue('shoppeeLink', data?.shoppeeLink ? data.shoppeeLink : '');
+        setValue('discount', data?.discount ? data?.discount : 0);
+        setValue('price', data?.price);
+        setValue('isSaleProduct', data?.isSaleProduct);
+        setValue('isNewRelease', data?.isNewRelease);
+        setValue('images', data?.media);
+      }
+      if (act === ACTIONS.IMGDELETE) {
+        console.log(data?.media);
+        setListFile(data?.media);
+        setProductId(data?.id);
+      }
+    },
+    [action],
+  );
 
   const onChangeTab = (key: string) => {
-    if(key === STATUS.UNAVAILABLE || key === STATUS.NEW_RELEASE || key === STATUS.SALE_PRODUCT){
+    if (
+      key === STATUS.UNAVAILABLE ||
+      key === STATUS.NEW_RELEASE ||
+      key === STATUS.SALE_PRODUCT
+    ) {
       setFilter((prevState) => ({
         ...prevState,
         [key]: true,
       }));
-    }else{
+    } else {
       setFilter((prevState) => ({
         ...prevState,
         status: key,
@@ -358,13 +380,18 @@ export default function page() {
       isSaleProduct: false,
       images: [],
     });
-    setSelectedRowKeys([])
-    setSelectedImages([])
+    setSelectedRowKeys([]);
+    setSelectedImages([]);
   }, []);
 
-  const onSubmit: SubmitHandler<ValidationSchema> = useCallback((data) => {
-    const formData = new FormData();
-      if(action !== ACTIONS.DELETE && action !== ACTIONS.MULTIDELETE && action !== ACTIONS.RESTORE){
+  const onSubmit: SubmitHandler<ValidationSchema> = useCallback(
+    (data) => {
+      const formData = new FormData();
+      if (
+        action !== ACTIONS.DELETE &&
+        action !== ACTIONS.MULTIDELETE &&
+        action !== ACTIONS.RESTORE
+      ) {
         const images = getValues('images');
         formData.append('name', getValues('name'));
         formData.append('description', getValues('description'));
@@ -374,30 +401,32 @@ export default function page() {
         formData.append('stock', getValues('stock').toString());
         formData.append('shoppeeLink', getValues('shoppeeLink'));
         formData.append('lazadaLink', getValues('lazadaLink'));
-        formData.append('discount',getValues('discount').toString());
+        formData.append('discount', getValues('discount').toString());
         formData.append('status', getValues('status'));
         formData.append('isSaleProduct', isSaleProduct ? 'true' : 'false');
         formData.append('isNewRelease', isNewRelease ? 'true' : 'false');
         // eslint-disable-next-line array-callback-return
-        images?.fileList?.map((file: { originFileObj: string | Blob; }) => {
-          formData.append('file', file?.originFileObj)
-        })
+        images?.fileList?.map((file: { originFileObj: string | Blob }) => {
+          formData.append('file', file?.originFileObj);
+        });
       }
       if (action === ACTIONS.ADD) {
         formData.append('createdBy', data?.createdBy);
       } else if (action === ACTIONS.EDIT) {
         formData.append('id', data?.id);
         formData.append('updatedBy', data?.updatedBy);
-      }else if(action === ACTIONS.DELETE || action === ACTIONS.RESTORE){
+      } else if (action === ACTIONS.DELETE || action === ACTIONS.RESTORE) {
         formData.append('updatedBy', data?.updatedBy);
-        formData.append('ids[]',data?.id)
-      }else if(action === ACTIONS.MULTIDELETE){
+        formData.append('ids[]', data?.id);
+      } else if (action === ACTIONS.MULTIDELETE) {
         formData.append('updatedBy', user?.info?.id);
-        selectedRowKeys.map(item =>formData.append('ids[]',item))
+        selectedRowKeys.map((item) => formData.append('ids[]', item));
       }
 
-    productMutation.mutateAsync(formData);
-  }, [action, getValues, productMutation, setAction]);
+      productMutation.mutateAsync(formData);
+    },
+    [action, getValues, productMutation, setAction],
+  );
 
   const beforeUpload = (file: RcFile) => {
     return false;
@@ -412,169 +441,207 @@ export default function page() {
     }
     setSelectedImages(newSelectedImages);
   };
-  const handleDeleteImages = () =>{
-    setAction(ACTIONS.IMGDELETE)
+  const handleDeleteImages = () => {
+    setAction(ACTIONS.IMGDELETE);
     const formData = new FormData();
-      selectedImages?.forEach((fileId) => {
-         formData.append(`mediaIds[]`,fileId.id)
-      })
-      formData.append('id',productId)
-      formData.append('userId',user?.info?.id)
-      formData.append('updatedBy',user?.info?.id)
-      productMutation.mutateAsync(formData);
-  }
-  const handleSelection = (data:{value:string},fieldName:string) =>{
-    setFilter((prev) =>({
-      ...prev,[fieldName]: data.value
-    }))
-  }
+    selectedImages?.forEach((fileId) => {
+      formData.append(`mediaIds[]`, fileId.id);
+    });
+    formData.append('id', productId);
+    formData.append('userId', user?.info?.id);
+    formData.append('updatedBy', user?.info?.id);
+    productMutation.mutateAsync(formData);
+  };
+  const handleSelection = (data: { value: string }, fieldName: string) => {
+    setFilter((prev) => ({
+      ...prev,
+      [fieldName]: data.value,
+    }));
+  };
 
   // Rendered Components
   const renderModalContent = () => (
-    <Form onFinish={handleSubmit(onSubmit)} className="mt-5"> 
-      {(action !== ACTIONS.DELETE && action !== ACTIONS.RESTORE && action !== ACTIONS.MULTIDELETE && action !== ACTIONS.IMGDELETE) ? (<div>
-      <FormItem name="images" control={control}>
-        <CustomUploader
-          name="images"
-          beforeUpload={(file) => beforeUpload(file)}
-          label="Product Images (optional)"
-          multiple
-          maxCount={5}
-          listType="picture-card"
-        >
-          <div className="flex flex-col items-center justify-center">
-            <PlusOutlined />
-            <CustomLabel variant="text" children={action === ACTIONS.EDIT ? 'Add Images' : 'Upload'} />
-          </div>
-        </CustomUploader>
-      </FormItem>
-      <FormItem name="name" control={control}>
-        <CustomInput
-          size="large"
-          label="Product Name"
-          placeholder="Ex. TKL Keyboard"
-          type="text"
-        />
-      </FormItem>
-      <FormItem name="description" control={control}>
-        <CustomTextEditor label="Description" classes="rounded-md" />
-      </FormItem>
-      <div className="flex space-x-2">
-        <div className="flex-1">
-          <FormItem name="brandId" control={control}>
-            <CustomSelect
-              label="Select Brand"
-              value={brands?.items}
-              className="w-full"
-              allowClear
-              items={brands?.items}
-              renderText="name"
-              renderValue="id"
-              renderKey="id"
-              // onChange={onSelectPositions}
-              // status={
-              //   formik.touched.position && Boolean(formik.errors.position)
-              //     ? 'error'
-              //     : null
-              // }
-              placeholder="Select Brand"
-              // errorText={formik.touched.position && formik.errors.position}
-            />
-          </FormItem>
-        </div>
-        <div className="flex-1">
-          <FormItem name="categoryId" control={control}>
-            <CustomSelect
-              label="Select Category"
-              value={categories?.items}
-              className="w-full"
-              allowClear
-              items={categories?.items}
-              renderText="name"
-              renderValue="id"
-              renderKey="id"
-              // onChange={onSelectPositions}
-              // status={
-              //   formik.touched.position && Boolean(formik.errors.position)
-              //     ? 'error'
-              //     : null
-              // }
-              placeholder="Select Category"
-              // errorText={formik.touched.position && formik.errors.position}
-            />
-          </FormItem>
-        </div>
-      </div>
-      <div className="flex space-x-2 w-full">
-        <FormItem name="price" control={control}>
-          <CustomInput size="large" min={0} label="Price" type="number" />
-        </FormItem>
-        <FormItem name="stock" control={control}>
-          <CustomInput size="large" min={0} label="Stock" type="number" />
-        </FormItem>
-      </div>
-      <div className="flex space-x-2 w-full">
-        <FormItem name="shoppeeLink" control={control}>
-          <CustomInput size="large" label="Shoppee Link" type="text" />
-        </FormItem>
-        <FormItem name="lazadaLink" control={control}>
-          <CustomInput size="large" label="Lazada Link" type="text" />
-        </FormItem>
-      </div>
-      <FormItem name="discount" control={control}>
-        <CustomInput size="middle" min={0} label="Discount (%)" type="number" />
-      </FormItem>
-      <FormItem name="isNewRelease" control={control}>
-        <Checkbox defaultChecked={getValues('isNewRelease')} onChange={(e) => setValue('isNewRelease', e.target.checked)} >Is product new release?</Checkbox>
-      </FormItem>
-      <FormItem name="isSaleProduct" control={control}>
-        <Checkbox defaultChecked={getValues('isSaleProduct')} onChange={(e) => setValue('isSaleProduct', e.target.checked)} >Is sale product?</Checkbox>
-      </FormItem>
-      <FormItem name="status" control={control}>
-        
-        <Flex vertical gap="middle">
-        <CustomRadio
-          onChange={(e) =>onChange(e)}
-          choices={['Available','Unavailable','Out of Stock']}
-          value={status}
-        />
-        </Flex>
-      </FormItem>
-      </div>) : action === ACTIONS.IMGDELETE ? (
-      <>
-        {listFile?.length > 0 ? (<div>
-          <Image.PreviewGroup
-            preview={{
-              onChange: (current, prev) => console.log(`current index: ${current}, prev index: ${prev}`),
-            }}
-          
-          >
-            <div className='flex flex-wrap gap-8'>
-            {listFile?.map((data, idx) => (
-              <div key={idx} className='basis-[30%]'>
-                <Checkbox
-                  checked={selectedImages.includes(data)}
-                  onChange={() => handleImageSelect(data)}
+    <Form onFinish={handleSubmit(onSubmit)} className="mt-5">
+      {action !== ACTIONS.DELETE &&
+      action !== ACTIONS.RESTORE &&
+      action !== ACTIONS.MULTIDELETE &&
+      action !== ACTIONS.IMGDELETE ? (
+        <div>
+          <FormItem name="images" control={control}>
+            <CustomUploader
+              name="images"
+              beforeUpload={(file) => beforeUpload(file)}
+              label="Product Images (optional)"
+              multiple
+              maxCount={5}
+              listType="picture-card"
+            >
+              <div className="flex flex-col items-center justify-center">
+                <PlusOutlined />
+                <CustomLabel
+                  variant="text"
+                  children={action === ACTIONS.EDIT ? 'Add Images' : 'Upload'}
                 />
-                <Image width={'100%'} height={110} src={process.env.BASE_IMAGE_URL + data.url} />
               </div>
-            ))}
-            </div>
-
-          </Image.PreviewGroup>
-          {selectedImages.length > 0 && (
-            <div className="mt-5 p-0 mb-0 w-full flex items-center justify-end">
-            <CustomButton
-              htmlType="button"
-              onClick={handleDeleteImages}
-              loading={products?.loading}
-              type="primary"
-              children={'Delete Selected Images'}
+            </CustomUploader>
+          </FormItem>
+          <FormItem name="name" control={control}>
+            <CustomInput
+              size="large"
+              label="Product Name"
+              placeholder="Ex. TKL Keyboard"
+              type="text"
             />
+          </FormItem>
+          <FormItem name="description" control={control}>
+            <CustomTextEditor label="Description" classes="rounded-md" />
+          </FormItem>
+          <div className="flex space-x-2">
+            <div className="flex-1">
+              <FormItem name="brandId" control={control}>
+                <CustomSelect
+                  label="Select Brand"
+                  value={brands?.items}
+                  className="w-full"
+                  allowClear
+                  items={brands?.items}
+                  renderText="name"
+                  renderValue="id"
+                  renderKey="id"
+                  // onChange={onSelectPositions}
+                  // status={
+                  //   formik.touched.position && Boolean(formik.errors.position)
+                  //     ? 'error'
+                  //     : null
+                  // }
+                  placeholder="Select Brand"
+                  // errorText={formik.touched.position && formik.errors.position}
+                />
+              </FormItem>
             </div>
+            <div className="flex-1">
+              <FormItem name="categoryId" control={control}>
+                <CustomSelect
+                  label="Select Category"
+                  value={categories?.items}
+                  className="w-full"
+                  allowClear
+                  items={categories?.items}
+                  renderText="name"
+                  renderValue="id"
+                  renderKey="id"
+                  // onChange={onSelectPositions}
+                  // status={
+                  //   formik.touched.position && Boolean(formik.errors.position)
+                  //     ? 'error'
+                  //     : null
+                  // }
+                  placeholder="Select Category"
+                  // errorText={formik.touched.position && formik.errors.position}
+                />
+              </FormItem>
+            </div>
+          </div>
+          <div className="flex space-x-2 w-full">
+            <FormItem name="price" control={control}>
+              <CustomInput
+                size="large"
+                min={0}
+                label="Price"
+                type="number"
+                step="0.01"
+              />
+            </FormItem>
+            <FormItem name="stock" control={control}>
+              <CustomInput size="large" min={0} label="Stock" type="number" />
+            </FormItem>
+          </div>
+          <div className="flex space-x-2 w-full">
+            <FormItem name="shoppeeLink" control={control}>
+              <CustomInput size="large" label="Shoppee Link" type="text" />
+            </FormItem>
+            <FormItem name="lazadaLink" control={control}>
+              <CustomInput size="large" label="Lazada Link" type="text" />
+            </FormItem>
+          </div>
+          <FormItem name="discount" control={control}>
+            <CustomInput
+              size="middle"
+              min={0}
+              label="Discount (%)"
+              type="number"
+            />
+          </FormItem>
+          <FormItem name="isNewRelease" control={control}>
+            <Checkbox
+              defaultChecked={getValues('isNewRelease')}
+              onChange={(e) => setValue('isNewRelease', e.target.checked)}
+            >
+              Is product new release?
+            </Checkbox>
+          </FormItem>
+          <FormItem name="isSaleProduct" control={control}>
+            <Checkbox
+              defaultChecked={getValues('isSaleProduct')}
+              onChange={(e) => setValue('isSaleProduct', e.target.checked)}
+            >
+              Is sale product?
+            </Checkbox>
+          </FormItem>
+          <FormItem name="status" control={control}>
+            <Flex vertical gap="middle">
+              <CustomRadio
+                onChange={(e) => onChange(e)}
+                choices={['Available', 'Unavailable', 'Out of Stock']}
+                value={status}
+              />
+            </Flex>
+          </FormItem>
+        </div>
+      ) : action === ACTIONS.IMGDELETE ? (
+        <>
+          {listFile?.length > 0 ? (
+            <div>
+              <Image.PreviewGroup
+                preview={{
+                  onChange: (current, prev) =>
+                    console.log(
+                      `current index: ${current}, prev index: ${prev}`,
+                    ),
+                }}
+              >
+                <div className="flex flex-wrap gap-8">
+                  {listFile?.map((data, idx) => (
+                    <div key={idx} className="basis-[30%]">
+                      <Checkbox
+                        checked={selectedImages.includes(data)}
+                        onChange={() => handleImageSelect(data)}
+                      />
+                      <Image
+                        width={'100%'}
+                        height={110}
+                        src={process.env.BASE_IMAGE_URL + data.url}
+                      />
+                    </div>
+                  ))}
+                </div>
+              </Image.PreviewGroup>
+              {selectedImages.length > 0 && (
+                <div className="mt-5 p-0 mb-0 w-full flex items-center justify-end">
+                  <CustomButton
+                    htmlType="button"
+                    onClick={handleDeleteImages}
+                    loading={products?.loading}
+                    type="primary"
+                    children={'Delete Selected Images'}
+                  />
+                </div>
+              )}
+            </div>
+          ) : (
+            <p>No Images being saved</p>
           )}
-        </div>) : (<p>No Images being saved</p>)}
-      </>
+        </>
       ) : action === ACTIONS.MULTIDELETE ? (
         <div>
           <CustomLabel
@@ -582,9 +649,7 @@ export default function page() {
             children={
               <span>
                 {' '}
-                Are you sure? Do you really want to{' '}
-                delete{' '}
-                all selected products{' '}
+                Are you sure? Do you really want to delete all selected products{' '}
               </span>
             }
             classes="text-lg"
@@ -598,10 +663,7 @@ export default function page() {
               <span>
                 {' '}
                 Are you sure? Do you really want to{' '}
-                {action === ACTIONS.DELETE
-                  ? 'delete'
-                  : 'restore'}{' '}
-                this products{' '}
+                {action === ACTIONS.DELETE ? 'delete' : 'restore'} this products{' '}
                 <span className="font-semibold">{getValues('name')}</span>
               </span>
             }
@@ -609,30 +671,32 @@ export default function page() {
           />
         </div>
       )}
-      {action !== ACTIONS.IMGDELETE && <Form.Item>
-        <div className="mt-5 p-0 mb-0 w-full flex items-center justify-end">
-          <CustomButton
-            htmlType="submit"
-            loading={products?.loading}
-            type="primary"
-            danger={
-              action === ACTIONS.DELETE &&
-              getValues('status') === STATUS.AVAILABLE
-            }
-            children={
-              action === ACTIONS.ADD
-                ? 'Submit'
-                : action === ACTIONS.EDIT
-                ? 'Save Changes'
-                : action === ACTIONS.DELETE
-                ? 'Delete'
-                : action === ACTIONS.MULTIDELETE
-                ? 'Delete all selected'
-                : 'Restore'
-            }
-          />
-        </div>
-      </Form.Item>}
+      {action !== ACTIONS.IMGDELETE && (
+        <Form.Item>
+          <div className="mt-5 p-0 mb-0 w-full flex items-center justify-end">
+            <CustomButton
+              htmlType="submit"
+              loading={products?.loading}
+              type="primary"
+              danger={
+                action === ACTIONS.DELETE &&
+                getValues('status') === STATUS.AVAILABLE
+              }
+              children={
+                action === ACTIONS.ADD
+                  ? 'Submit'
+                  : action === ACTIONS.EDIT
+                  ? 'Save Changes'
+                  : action === ACTIONS.DELETE
+                  ? 'Delete'
+                  : action === ACTIONS.MULTIDELETE
+                  ? 'Delete all selected'
+                  : 'Restore'
+              }
+            />
+          </div>
+        </Form.Item>
+      )}
     </Form>
   );
 
@@ -644,16 +708,16 @@ export default function page() {
     selectedRowKeys,
     onChange: onSelectChange,
     getCheckboxProps: (record: any) => ({
-      disabled: record.isDeleted === true, 
+      disabled: record.isDeleted === true,
     }),
   };
-  const productData = products?.items?.map(data => ({
+  const productData = products?.items?.map((data) => ({
     ...data,
-    key:data.id
-  }))
-  console.log(getValues('isSaleProduct'))
+    key: data.id,
+  }));
+  console.log(getValues('isSaleProduct'));
   return (
-    <div className='h-max'>
+    <div className="h-max">
       <div className="flex items-center justify-between">
         <div className="w-full flex items-center space-x-3">
           <div className="p-3 rounded-full bg-blue-500/20 border border-blue-400">
@@ -683,44 +747,60 @@ export default function page() {
       <div className="mt-14 space-y-5">
         <Tabs defaultActiveKey="0" items={items} onChange={onChangeTab} />
         <div className="w-full flex gap-4 justify-between flex-wrap">
-          <div className='w-52'>
-          {selectedRowKeys.length > 0 &&
-            <CustomButton
-            icon={<MdDelete />}
-            size="large"
-            danger
-            children="Delete Selected"
-            onClick={() => showModal(ACTIONS.MULTIDELETE)}
-          />
-          }
+          <div className="w-52">
+            {selectedRowKeys.length > 0 && (
+              <CustomButton
+                icon={<MdDelete />}
+                size="large"
+                danger
+                children="Delete Selected"
+                onClick={() => showModal(ACTIONS.MULTIDELETE)}
+              />
+            )}
           </div>
-          <div className='flex grow justify-between items-end gap-8 flex-wrap'>
-            <div className='flex gap-4 flex-1'>
-            <Select
-              value={filter.brandId ? filter.brandId : 'Select Brand'}
-              onChange={(value) =>{handleSelection({value},'brandId')}}
-              optionLabelProp='label'
-              size='large'
-              className='w-52 min-w-60'
-              options={(brands?.items?.map((option: { id: any; name: any; }) => ({value: option.id,label:option.name})))}
-            />
-            <Select
-              value={filter.categoryId ? filter.categoryId : 'Select Category'}
-              onChange={(value) =>{handleSelection({value},'categoryId')}}
-              optionLabelProp='label'
-              size='large'
-              className='w-52 min-w-60'
-              options={(categories?.items?.map((option: { id: any; name: any; }) => ({value: option.id,label:option.name})))}
-            />
+          <div className="flex grow justify-between items-end gap-8 flex-wrap">
+            <div className="flex gap-4 flex-1">
+              <Select
+                value={filter.brandId ? filter.brandId : 'Select Brand'}
+                onChange={(value) => {
+                  handleSelection({ value }, 'brandId');
+                }}
+                optionLabelProp="label"
+                size="large"
+                className="w-52 min-w-60"
+                options={brands?.items?.map(
+                  (option: { id: any; name: any }) => ({
+                    value: option.id,
+                    label: option.name,
+                  }),
+                )}
+              />
+              <Select
+                value={
+                  filter.categoryId ? filter.categoryId : 'Select Category'
+                }
+                onChange={(value) => {
+                  handleSelection({ value }, 'categoryId');
+                }}
+                optionLabelProp="label"
+                size="large"
+                className="w-52 min-w-60"
+                options={categories?.items?.map(
+                  (option: { id: any; name: any }) => ({
+                    value: option.id,
+                    label: option.name,
+                  }),
+                )}
+              />
             </div>
-            <div className='grow'>
-            <CustomInput
-              placeholder="Search brand name"
-              size="large"
-              classes="w-full"
-              name="name"
-              onChange={useDebounce(onSetFilter)}
-            />
+            <div className="grow">
+              <CustomInput
+                placeholder="Search brand name"
+                size="large"
+                classes="w-full"
+                name="name"
+                onChange={useDebounce(onSetFilter)}
+              />
             </div>
           </div>
         </div>
@@ -744,7 +824,6 @@ export default function page() {
           footer={null}
           isOpen={isOpenModal}
           children={renderModalContent()}
-          
         />
       </div>
     </div>
