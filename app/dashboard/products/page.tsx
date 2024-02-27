@@ -458,7 +458,7 @@ export default function page() {
       [fieldName]: data.value,
     }));
   };
-
+ console.log(brands.items)
   // Rendered Components
   const renderModalContent = () => (
     <Form onFinish={handleSubmit(onSubmit)} className="mt-5">
@@ -503,7 +503,7 @@ export default function page() {
                   label="Select Brand"
                   value={brands?.items}
                   className="w-full"
-                  allowClear
+                  allowClear={true}
                   items={brands?.items}
                   renderText="name"
                   renderValue="id"
@@ -765,6 +765,7 @@ export default function page() {
                 onChange={(value) => {
                   handleSelection({ value }, 'brandId');
                 }}
+                allowClear
                 optionLabelProp="label"
                 size="large"
                 className="w-52 min-w-60"
@@ -784,6 +785,7 @@ export default function page() {
                 }}
                 optionLabelProp="label"
                 size="large"
+                allowClear
                 className="w-52 min-w-60"
                 options={categories?.items?.map(
                   (option: { id: any; name: any }) => ({
