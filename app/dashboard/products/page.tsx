@@ -91,7 +91,7 @@ export default function page() {
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
   const [selectedImages, setSelectedImages] = useState([]);
   const [action, setAction] = useState(null);
-  const [filter, setFilter] = useState({
+  const initialParams ={
     name: '',
     status: '',
     brandId: '',
@@ -99,7 +99,8 @@ export default function page() {
     isDeleted: false,
     isNewRelease: false,
     isSaleProduct: false,
-  });
+  }
+  const [filter, setFilter] = useState(initialParams);
   const items: TabsProps['items'] = [
     {
       key: STATUS.AVAILABLE,
@@ -340,15 +341,14 @@ export default function page() {
       key === STATUS.NEW_RELEASE ||
       key === STATUS.SALE_PRODUCT
     ) {
-      setFilter((prevState) => ({
-        ...prevState,
+      setFilter(() => ({
+        ...initialParams,
         [key]: true,
       }));
     } else {
-      setFilter((prevState) => ({
-        ...prevState,
+      setFilter(() => ({
+        ...initialParams,
         status: key,
-        isDeleted: false,
       }));
     }
   };
