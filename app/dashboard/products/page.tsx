@@ -240,6 +240,7 @@ export default function page() {
   const status = watch('status');
   const isSaleProduct = watch('isSaleProduct');
   const isNewRelease = watch('isNewRelease');
+  const listImg =  watch('images')
   const { data: productsData, isLoading } = useQuery({
     queryKey: ['products', filter],
     queryFn: async () => await ProductsService.fetchAll(filter),
@@ -485,6 +486,17 @@ export default function page() {
               </div>
             </CustomUploader>
           </FormItem>
+          <div>
+          <p>List of Images:</p>
+          <Image.PreviewGroup
+            items={listImg?.map((item: { url: string; }) => process.env.BASE_IMAGE_URL + item.url)}
+          >
+            <Image
+              width={100}
+              src={process.env.BASE_IMAGE_URL + listImg[0]?.url}
+            />
+          </Image.PreviewGroup>
+          </div>
           <FormItem name="name" control={control}>
             <CustomInput
               size="large"
@@ -715,7 +727,7 @@ export default function page() {
     ...data,
     key: data.id,
   }));
-  console.log(getValues('isSaleProduct'));
+  console.log(listImg[0])
   return (
     <div className="h-max">
       <div className="flex items-center justify-between">
