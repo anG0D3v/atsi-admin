@@ -486,7 +486,7 @@ export default function page() {
               </div>
             </CustomUploader>
           </FormItem>
-          <div>
+          {action === ACTIONS.EDIT && <div>
           <p>List of Images:</p>
           <Image.PreviewGroup
             items={listImg?.map((item: { url: string; }) => process.env.BASE_IMAGE_URL + item.url)}
@@ -496,7 +496,7 @@ export default function page() {
               src={process.env.BASE_IMAGE_URL + listImg[0]?.url}
             />
           </Image.PreviewGroup>
-          </div>
+          </div>}
           <FormItem name="name" control={control}>
             <CustomInput
               size="large"
