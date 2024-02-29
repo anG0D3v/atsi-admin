@@ -34,6 +34,7 @@ import {
   CustomInput,
   CustomLabel,
   CustomModal,
+  CustomNextImage,
   CustomSelect,
   CustomTable,
   CustomTag,
@@ -871,7 +872,7 @@ export default function page() {
         />
       </div>
       <Modal open={previewOpen} title={previewTitle} footer={null} onCancel={handleCancel}>
-        <Image alt="example" className='w-full' src={previewImage} />
+        <CustomNextImage width={200} height={150} url={previewImage} />
       </Modal>
     </div>
   );
