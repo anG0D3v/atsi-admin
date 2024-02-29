@@ -758,7 +758,6 @@ export default function page() {
     ...data,
     key: data.id,
   }));
-  console.log(listImg)
   return (
     <div className="h-max">
       <div className="flex items-center justify-between">
