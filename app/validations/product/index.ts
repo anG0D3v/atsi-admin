@@ -45,6 +45,7 @@ const productValidator = z.object({
   isSaleProduct: z.boolean().default(false).optional(),
   isNewRelease: z.boolean().default(false).optional(),
   images: z.any().optional(),
+  oldimg:z.any().optional()
 });
 
 export default productValidator;
