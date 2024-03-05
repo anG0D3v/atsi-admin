@@ -44,6 +44,14 @@ const createUserSlice: StateCreator<UserSlice> = (set) => ({
       }
     } catch (error) {
       console.log('Error at: ', error);
+      set((state) => ({
+        ...state,
+        user: {
+          ...state?.user,
+          loading: false,
+          responseMsg: error?.message,
+        },
+      }));
     }
   },
   getUserByEmail: async (payload: string) => {
