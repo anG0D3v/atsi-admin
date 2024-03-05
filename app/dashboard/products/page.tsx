@@ -17,6 +17,8 @@ import {
   Flex,
   type RadioChangeEvent,
   Select,
+  Modal,
+  type UploadFile,
 } from 'antd';
 import { type RcFile } from 'antd/es/upload';
 import _ from 'lodash';
@@ -32,6 +34,7 @@ import {
   CustomInput,
   CustomLabel,
   CustomModal,
+  CustomNextImage,
   CustomSelect,
   CustomTable,
   CustomTag,
@@ -56,6 +59,18 @@ import {
 } from '@/zustand/store/store.provider';
 
 type ValidationSchema = z.infer<typeof productValidator>;
+
+
+type FileType = Blob;
+
+const getBase64 = async (file: FileType): Promise<string> =>
+  await new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = () => resolve(reader.result as string);
+    reader.onerror = (error) => reject(error);
+  });
+
 export default function page() {
   // Initialization
   const user = useStore(selector('user'));
@@ -90,8 +105,11 @@ export default function page() {
   const [productId, setProductId] = useState('');
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
   const [selectedImages, setSelectedImages] = useState([]);
+  const [previewOpen, setPreviewOpen] = useState(false);
+  const [previewImage, setPreviewImage] = useState('');
+  const [previewTitle, setPreviewTitle] = useState('');
   const [action, setAction] = useState(null);
-  const [filter, setFilter] = useState({
+  const initialParams ={
     name: '',
     status: '',
     brandId: '',
@@ -99,7 +117,8 @@ export default function page() {
     isDeleted: false,
     isNewRelease: false,
     isSaleProduct: false,
-  });
+  }
+  const [filter, setFilter] = useState(initialParams);
   const items: TabsProps['items'] = [
     {
       key: STATUS.AVAILABLE,
@@ -239,6 +258,7 @@ export default function page() {
   const status = watch('status');
   const isSaleProduct = watch('isSaleProduct');
   const isNewRelease = watch('isNewRelease');
+  const listImg =  watch('oldimg')
   const { data: productsData, isLoading } = useQuery({
     queryKey: ['products', filter],
     queryFn: async () => await ProductsService.fetchAll(filter),
@@ -273,6 +293,7 @@ export default function page() {
         price: 0,
         isSaleProduct: false,
         images: [],
+        oldimg:[]
       });
       setSelectedImages([]);
       setSelectedRowKeys([]);
@@ -323,7 +344,7 @@ export default function page() {
         setValue('price', data?.price);
         setValue('isSaleProduct', data?.isSaleProduct);
         setValue('isNewRelease', data?.isNewRelease);
-        setValue('images', data?.media);
+        setValue('oldimg', data?.media);
       }
       if (act === ACTIONS.IMGDELETE) {
         console.log(data?.media);
@@ -340,15 +361,14 @@ export default function page() {
       key === STATUS.NEW_RELEASE ||
       key === STATUS.SALE_PRODUCT
     ) {
-      setFilter((prevState) => ({
-        ...prevState,
+      setFilter(() => ({
+        ...initialParams,
         [key]: true,
       }));
     } else {
-      setFilter((prevState) => ({
-        ...prevState,
+      setFilter(() => ({
+        ...initialParams,
         status: key,
-        isDeleted: false,
       }));
     }
   };
@@ -379,6 +399,7 @@ export default function page() {
       price: 0,
       isSaleProduct: false,
       images: [],
+      oldimg:[]
     });
     setSelectedRowKeys([]);
     setSelectedImages([]);
@@ -431,6 +452,17 @@ export default function page() {
   const beforeUpload = (file: RcFile) => {
     return false;
   };
+  const handleCancel = () => setPreviewOpen(false);
+
+  const handlePreview = async (file: UploadFile) => {
+    if (!file.url && !file.preview) {
+      file.preview = await getBase64(file.originFileObj as FileType);
+    }
+
+    setPreviewImage(file.url || (file.preview ));
+    setPreviewOpen(true);
+    setPreviewTitle(file.name || file.url.substring(file.url.lastIndexOf('/') + 1));
+  };
   const handleImageSelect = (image: any) => {
     const selectedIndex = selectedImages.indexOf(image);
     const newSelectedImages = [...selectedImages];
@@ -458,7 +490,6 @@ export default function page() {
       [fieldName]: data.value,
     }));
   };
-
   // Rendered Components
   const renderModalContent = () => (
     <Form onFinish={handleSubmit(onSubmit)} className="mt-5">
@@ -475,6 +506,7 @@ export default function page() {
               multiple
               maxCount={5}
               listType="picture-card"
+              onPreview={handlePreview}
             >
               <div className="flex flex-col items-center justify-center">
                 <PlusOutlined />
@@ -485,6 +517,17 @@ export default function page() {
               </div>
             </CustomUploader>
           </FormItem>
+          {action === ACTIONS.EDIT && <div>
+          <p>List of Images:</p>
+          <Image.PreviewGroup
+            items={listImg?.map((item: { url: string; }) => process.env.BASE_IMAGE_URL + item.url)}
+          >
+            <Image
+              width={100}
+              src={process.env.BASE_IMAGE_URL + listImg[0]?.url}
+            />
+          </Image.PreviewGroup>
+          </div>}
           <FormItem name="name" control={control}>
             <CustomInput
               size="large"
@@ -503,7 +546,7 @@ export default function page() {
                   label="Select Brand"
                   value={brands?.items}
                   className="w-full"
-                  allowClear
+                  allowClear={true}
                   items={brands?.items}
                   renderText="name"
                   renderValue="id"
@@ -715,7 +758,7 @@ export default function page() {
     ...data,
     key: data.id,
   }));
-  console.log(getValues('isSaleProduct'));
+  console.log(listImg)
   return (
     <div className="h-max">
       <div className="flex items-center justify-between">
@@ -765,6 +808,7 @@ export default function page() {
                 onChange={(value) => {
                   handleSelection({ value }, 'brandId');
                 }}
+                allowClear
                 optionLabelProp="label"
                 size="large"
                 className="w-52 min-w-60"
@@ -784,6 +828,7 @@ export default function page() {
                 }}
                 optionLabelProp="label"
                 size="large"
+                allowClear
                 className="w-52 min-w-60"
                 options={categories?.items?.map(
                   (option: { id: any; name: any }) => ({
@@ -826,6 +871,9 @@ export default function page() {
           children={renderModalContent()}
         />
       </div>
+      <Modal open={previewOpen} title={previewTitle} footer={null} onCancel={handleCancel}>
+        <CustomNextImage width={200} height={150} url={previewImage} />
+      </Modal>
     </div>
   );
 }

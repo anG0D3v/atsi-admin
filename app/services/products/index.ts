@@ -9,7 +9,7 @@ const ProductsServices = {
           data?.brandId ?? ''
         }&categoryId=${data?.categoryId ?? ''}&name=${data?.name}&status=${
           data?.status ?? ''
-        }&isDeleted=${data?.isDeleted || false}&isNewRelease=${data?.isNewRelease || false}&isSaleProduct=${data?.isSaleProduct || false}`,
+        }${data?.isDeleted ? `&isDeleted=${true}` :''}${data?.isNewRelease ? `&isNewRelease=${true}` :''}${data?.isSaleProduct ? `&isSaleProduct=${true}` :''}`,
     ),
   fetchProductInfoById: async (id: string) =>
     await axiosInstance.get(Api.PRODUCTS().PRODUCT_INFO_BY_ID + id),

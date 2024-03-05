@@ -10,9 +10,11 @@ import { type UploadListType } from 'antd/es/upload/interface';
 import clsx from 'clsx';
 import { CustomLabel } from '..';
 
+
 interface ICustomUploaderProps {
   beforeUpload?: (file: RcFile) => void;
   onRemove?: () => void;
+  onPreview?:(file:UploadFile)=>void;
   onChange?: (file: UploadChangeParam<UploadFile<any>>) => void;
   fileList?: Array<UploadFile<any>>;
   listType: UploadListType;
@@ -45,6 +47,7 @@ const CustomUploader = forwardRef<UploadRef, ICustomUploaderProps>(
             beforeUpload={(file) => props.beforeUpload(file)}
             onRemove={props.onRemove}
             onChange={props.onChange}
+            onPreview={props.onPreview}
             fileList={props.fileList}
             listType={props.listType}
             maxCount={props.maxCount}
