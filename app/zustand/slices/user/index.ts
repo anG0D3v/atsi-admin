@@ -39,8 +39,17 @@ const createUserSlice: StateCreator<UserSlice> = (set) => ({
           }));
           toast.success('Login Success');
           return response;
+        } else {
+          toast.error(`Access Denied. ${response?.data?.message}`);
+          set((state) => ({
+            ...state,
+            user: {
+              ...state?.user,
+              loading: false,
+              responseMsg: response?.data?.message,
+            },
+          }));
         }
-        toast.error('Access Denied');
       }
     } catch (error) {
       console.log('Error at: ', error);
