@@ -136,7 +136,7 @@ export default function Login() {
       <CustomLabel
         children="LOGIN"
         variant="text"
-        addedClass="font-extrabold text-2xl"
+        classes="font-extrabold text-2xl"
       />
       <Form
         name="normal_login"
