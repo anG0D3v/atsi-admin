@@ -31,6 +31,7 @@ type UploadRef = React.RefAttributes<typeof Upload> | any;
 
 const CustomUploader = forwardRef<UploadRef, ICustomUploaderProps>(
   ({ ...props }, ref) => {
+    console.log(props.fileList)
     return (
       <div>
         {props.label && (

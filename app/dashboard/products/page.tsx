@@ -317,6 +317,8 @@ export default function page() {
     setValue('status', e.target.value);
   };
 
+
+
   // Functions
   const showModal = useCallback(
     (act: string, data?: any) => {
@@ -403,7 +405,7 @@ export default function page() {
     });
     setSelectedRowKeys([]);
     setSelectedImages([]);
-  }, []);
+  }, [ reset, setValue, setIsOpenModal]);
 
   const onSubmit: SubmitHandler<ValidationSchema> = useCallback(
     (data) => {
@@ -517,7 +519,7 @@ export default function page() {
               </div>
             </CustomUploader>
           </FormItem>
-          {action === ACTIONS.EDIT && <div>
+          {(action === ACTIONS.EDIT && listImg.length > 0) && <div>
           <p>List of Images:</p>
           <Image.PreviewGroup
             items={listImg?.map((item: { url: string; }) => process.env.BASE_IMAGE_URL + item.url)}
@@ -758,6 +760,8 @@ export default function page() {
     ...data,
     key: data.id,
   }));
+  const img = watch('images')
+  console.log(img)
   return (
     <div className="h-max">
       <div className="flex items-center justify-between">

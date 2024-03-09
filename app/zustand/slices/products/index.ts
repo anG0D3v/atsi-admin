@@ -3,13 +3,15 @@ import { type StateCreator } from 'zustand';
 // import { customAlert, executeOnProcess } from '@/config/utils/util';
 import { MESSAGES, STATUS_CODES } from '@/config/utils/constants';
 import { customAlert, executeOnProcess } from '@/config/utils/util';
-import { type IProductsDTO } from '@/interfaces/global';
+import { type IFeedback, type IProductsDTO } from '@/interfaces/global';
 import { ProductsService } from '@/services';
+import FeedbackServices from '@/services/feedback';
 // import { ProductsService } from '@/services';
 
 interface ProductsState {
   loading: boolean;
-  items: IProductsDTO[] | undefined;
+  items?: IProductsDTO[] | undefined;
+  reviews?: IFeedback[] | undefined;
   responseMsg: string | null;
 }
 
@@ -21,6 +23,9 @@ export interface ProductsSlice {
   deleteProductImg: (payload: any) => void;
   deleteProduct: (payload: any) => void;
   restoreProduct: (payload:any) => void;
+  loadReviews:(payload:any) => void;
+  deleteFeedback: (payload: any) => Promise<void>;
+  restoreFeedback: (payload: any) => Promise<void>;
 }
 
 const initialState: ProductsState = {
@@ -251,7 +256,113 @@ const createProductsSlice: StateCreator<ProductsSlice> = (set) => ({
     } catch (error) {
       console.log(error)
     }
-  }
+  },
+  loadReviews: async (payload) => {
+    try {
+      set((state) => ({
+        ...state,
+        products: {
+          ...state.products,
+          loading: false,
+          reviews: payload,
+        },
+      }));
+    } catch (error) {
+      set((state) => ({
+        products: {
+          ...state.products,
+          loading: false,
+          responseMsg: error.response.data.message,
+        },
+      }));
+    }
+  },
+  deleteFeedback: async (payload) =>{
+    try {
+        set((state) => ({
+            ...state,
+            products: {
+              ...state.products,
+              loading: true,
+            },
+          }));
+    
+          const process = await executeOnProcess(() =>
+            customAlert('info', MESSAGES.PLEASE_WAIT, MESSAGES.EXECUTING_TASK),
+          );
+          const response = await FeedbackServices.deleteFeedback(payload);
+          if (response.status === STATUS_CODES.OK && process) {
+            if (!('message' in response.data)) {
+              customAlert(
+                'success',
+                MESSAGES.SUCCESS,
+                MESSAGES.DELETED,
+              );
+            } else {
+              set((state) => ({
+                ...state,
+                products: {
+                  ...state.products,
+                  loading: false,
+                },
+              }));
+              customAlert('error', MESSAGES.ERROR, response?.data?.message);
+            }
+          }
+    } catch (error) {
+        set((state) => ({
+          products: {
+              ...state.products,
+              loading: false,
+              responseMsg: error.response.data.message,
+            },
+          }));
+          customAlert('error', MESSAGES.ERROR, error.response.data.message);    
+    }
+  },
+  restoreFeedback: async (payload) =>{
+    try {
+        set((state) => ({
+            ...state,
+            products: {
+              ...state.products,
+              loading: true,
+            },
+          }));
+    
+          const process = await executeOnProcess(() =>
+            customAlert('info', MESSAGES.PLEASE_WAIT, MESSAGES.EXECUTING_TASK),
+          );
+          const response = await FeedbackServices.restoreFeedback(payload);
+          if (response.status === STATUS_CODES.OK && process) {
+            if (!('message' in response.data)) {
+              customAlert(
+                'success',
+                MESSAGES.SUCCESS,
+                MESSAGES.RESTORED
+              );
+            } else {
+              set((state) => ({
+                ...state,
+                products: {
+                  ...state.products,
+                  loading: false,
+                },
+              }));
+              customAlert('error', MESSAGES.ERROR, response?.data?.message);
+            }
+          }
+    } catch (error) {
+        set((state) => ({
+          products: {
+              ...state.products,
+              loading: false,
+              responseMsg: error.response.data.message,
+            },
+          }));
+          customAlert('error', MESSAGES.ERROR, error.response.data.message);    
+    }
+  },
 });
 
 export default createProductsSlice;

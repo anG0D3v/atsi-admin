@@ -44,6 +44,12 @@ const Api = {
     UPDATE_BLOGS: ApiEndpoint(base + '/update'),
     DELETE_BLOGS: ApiEndpoint(base + '/delete'),
     RESTORE_BLOGS: ApiEndpoint(base + '/restore')
+  }),
+
+  FEEDBACK: (base = '/feedbacks') => ({
+    ALL: ApiEndpoint(base + '/all'),
+    DELETE_FEEDBACK: ApiEndpoint(base + '/delete'),
+    RESTORE_FEEDBACK: ApiEndpoint(base + '/restore')
   })
 
 };

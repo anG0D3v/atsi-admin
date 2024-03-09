@@ -12,6 +12,7 @@ import { FaUsers } from 'react-icons/fa6';
 import { MdOutlineEdit } from 'react-icons/md';
 import { PiSignOutBold } from 'react-icons/pi';
 import { TbBrandFramerMotion, TbCategoryFilled,TbWorldWww } from 'react-icons/tb';
+import { VscFeedback } from 'react-icons/vsc';
 import { type z } from 'zod';
 import { CustomAvatar, CustomButton, CustomInput, CustomLabel, CustomModal } from '@/components';
 import { Routes } from '@/config/routes/routes';
@@ -48,7 +49,8 @@ const items: MenuItem[] = [
   getItem('Products', '2', <BsFillBoxSeamFill />),
   getItem('Users', '3', <FaUsers />),
   getItem('Blogs','4',<TbWorldWww />),
-  getItem('Sign Out', '5', <PiSignOutBold />),
+  getItem('Feedback','5',<VscFeedback />),
+  getItem('Sign Out', '6', <PiSignOutBold />),
 ];
 
 interface Props {
@@ -110,6 +112,9 @@ export default function RootLayout({ children }: Props) {
         navigate.push(Routes.Web);
         break;
       case '5':
+          navigate.push(Routes.Feedback);
+          break;
+      case '6':
         handleSignOut();
         break;
       default:
@@ -186,7 +191,7 @@ export default function RootLayout({ children }: Props) {
       </Form.Item>
     </Form>
   );
-  console.log(currentPathname)
+
   return (
     <section>
       <Layout className="h-max min-h-screen">
@@ -240,6 +245,8 @@ export default function RootLayout({ children }: Props) {
                   ? '3' 
                   : currentPathname === Routes.Web
                   ? '4'
+                  : currentPathname === Routes.Feedback
+                  ? '5'
                   : '0',
               ]}
               mode="inline"

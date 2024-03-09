@@ -1,3 +1,4 @@
+/* eslint-disable no-use-before-define */
 
 
 export interface IBrandDTO {
@@ -21,6 +22,38 @@ export interface ICategoriesDTO {
   status?: string;
   updatedAt?: Date;
   brandsId?: string;
+}
+export interface IFeedback{
+  id: string;
+  content: string;
+  productsId: string;
+  createdBy: string;
+  createdAt: string;
+  updatedAt: string | null;
+  updatedBy: string | null;
+  isDeleted: boolean;
+  rating: number;
+  createdByUser: {
+    id: string;
+    username: string;
+    email: string;
+    password: string;
+    status: string;
+    createdAt: string;
+    updatedAt: null | string;
+    type: string;
+  };
+  updatedByUser: null | {
+    id: string;
+    username: string;
+    email: string;
+    password: string;
+    status: string;
+    createdAt: Date;
+    updatedAt: null | string;
+    type: string;
+  };
+  product: IProductsDTO; 
 }
 
 export interface IProductsDTO {
@@ -67,5 +100,5 @@ export interface IWebDTO {
   updatedBy: string | null;
   updatedAt: Date | null;
   isDeleted: boolean;
-  
 }
+

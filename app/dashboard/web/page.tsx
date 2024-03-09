@@ -432,7 +432,7 @@ export default function page() {
     key:data.id
   }))
 
-  console.log(getValues())
+  console.log(blogs)
 
   return (
     <div className="">

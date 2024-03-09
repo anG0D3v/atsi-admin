@@ -63,7 +63,7 @@ export default function page() {
   const queryClient = useQueryClient();
   const [action, setAction] = useState<string>(ACTIONS.ADD);
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
-  const { handleSubmit, control, reset, setValue, getValues } =
+  const { handleSubmit, control, reset, setValue, getValues,watch } =
     useForm<TValidationSchema>({
       defaultValues: {
         id: '',
@@ -78,7 +78,7 @@ export default function page() {
     });
 
   const categories = useStore(selector('categories'));
-
+  const brandsId = watch('brandsId')
   const { data: categoriesData, isLoading } = useQuery({
     queryKey: ['categories', filter],
     queryFn: async () => await CategoriesServices.fetchAll(filter),
@@ -212,7 +212,6 @@ export default function page() {
   const showModal = useCallback((act?: string, data?: any) => {
     setAction(act);
     setOpen(true);
-    console.log(selectedRowKeys)
     if (act === ACTIONS.EDIT || act === ACTIONS.DELETE || act === ACTIONS.RESTORE || act === ACTIONS.MULTIDELETE) {
       setValue('id', data?.id);
       setValue('name', data?.name, {
@@ -227,7 +226,7 @@ export default function page() {
       setValue('updatedBy', user?.info?.id);
       setValue('status', data?.status);
     }
-  }, []);
+  }, [setValue,action]);
 
   const categoryMutation = useMutation({
     mutationFn:
@@ -258,7 +257,6 @@ export default function page() {
 
   const onSubmit: SubmitHandler<TValidationSchema> = useCallback(
     (data) => {
-     
       const formData = new FormData();
       if (action === ACTIONS.ADD) {
         formData.append('name',data?.name)
@@ -311,7 +309,6 @@ export default function page() {
               renderValue="id"
               renderKey="id"
               mode='multiple'
-              // onChange={onSelectPositions}
               // status={
               //   formik.touched.position && Boolean(formik.errors.position)
               //     ? 'error'
@@ -404,12 +401,11 @@ export default function page() {
       disabled: record.isDeleted === true, 
     }),
   };
-  const categoryData = categories?.items?.map(data => ({
+  const categoryData = categories?.items?.map((data: { id: any; }) => ({
     ...data,
     key:data.id
   }))
- 
-  console.log(getValues())
+  console.log(brandsId)
   return (
     <div>
       <div className="flex items-center justify-between">

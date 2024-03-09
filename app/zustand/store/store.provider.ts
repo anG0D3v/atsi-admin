@@ -35,7 +35,10 @@ export const {
   addBlogs,
   updateBlogs,
   deleteBlogs,
-  restoreBlogs
+  restoreBlogs,
+  loadReviews,
+  restoreFeedback,
+  deleteFeedback
 } = storeProvider;
 
 export { selector, storeProvider };

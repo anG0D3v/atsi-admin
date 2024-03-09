@@ -7,5 +7,6 @@ export const Routes = {
   Products: dashboard('/products'),
   Users: dashboard('/users'),
   Web:dashboard('/web'),
+  Feedback:dashboard('/feedback'),
   Login: ('/')
 };
