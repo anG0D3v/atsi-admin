@@ -4,20 +4,20 @@ import {
   createUserSlice,
   createBrandSlice,
   createCategoriesSlice,
-  createFeedbackSlice,
   createProductsSlice,
   createUserListSlice,
   createWebSlice,
+  createAboutSlice
 } from '../slices';
+import { type AboutSlice } from '../slices/aboutus';
 import { type BrandsSlice } from '../slices/brands';
 import { type CategoriesSlice } from '../slices/categories';
-import { type FeedbackSlice } from '../slices/feedback';
 import { type ProductsSlice } from '../slices/products';
 import { type UserSlice } from '../slices/user';
 import { type UserListSlice} from '../slices/userlist';
 import { type WebSlice } from '../slices/web'
 
-type TAppSlices = UserSlice & BrandsSlice & CategoriesSlice & FeedbackSlice & ProductsSlice & UserListSlice & WebSlice;
+type TAppSlices = UserSlice & BrandsSlice & CategoriesSlice & ProductsSlice & UserListSlice & WebSlice & AboutSlice;
 const useStore = create<TAppSlices>()(
   devtools(
     persist(
@@ -25,10 +25,10 @@ const useStore = create<TAppSlices>()(
         ...createUserSlice(...args),
         ...createBrandSlice(...args),
         ...createCategoriesSlice(...args),
-        ...createCategoriesSlice(...args),
         ...createProductsSlice(...args),
         ...createUserListSlice(...args),
-        ...createWebSlice(...args)
+        ...createWebSlice(...args),
+        ...createAboutSlice(...args)
       }),
       {
         name: 'atsi',

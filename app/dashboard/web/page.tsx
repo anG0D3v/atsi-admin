@@ -491,7 +491,6 @@ export default function page() {
           datasource={!isLoading ? blogData : []}
         />
       </div>
-
       <div>
         <CustomModal
           onCancel={onHandleClose}

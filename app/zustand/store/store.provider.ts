@@ -38,7 +38,13 @@ export const {
   restoreBlogs,
   loadReviews,
   restoreFeedback,
-  deleteFeedback
+  deleteFeedback,
+  fetchAbouts,
+  addAbouts,
+  deleteAbouts,
+  updateAbouts,
+  restoreAbouts,
+  setInactiveActive
 } = storeProvider;
 
 export { selector, storeProvider };

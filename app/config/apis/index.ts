@@ -50,6 +50,16 @@ const Api = {
     ALL: ApiEndpoint(base + '/all'),
     DELETE_FEEDBACK: ApiEndpoint(base + '/delete'),
     RESTORE_FEEDBACK: ApiEndpoint(base + '/restore')
+  }),
+
+  ABOUTUS: (base = '/about-us') => ({
+    ALL: ApiEndpoint(base + '/all'),
+    ADD_ABOUTUS: ApiEndpoint(base + '/add'),
+    UPDATE_ABOUTUS: ApiEndpoint(base + '/update'),
+    DELETE_ABOUTUS: ApiEndpoint( base + '/delete'),
+    RESTORE_ABOUTUS: ApiEndpoint( base + '/restore'),
+    ACTIVEABOUTS: ApiEndpoint(base + '/set-active'),
+    INACTIVEABOUTS: ApiEndpoint(base + '/set-inactive')
   })
 
 };

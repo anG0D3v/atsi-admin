@@ -1,5 +1,15 @@
 /* eslint-disable no-use-before-define */
 
+export interface IAboutUs{
+  id:string;
+  content:string;
+  createdBy:string;
+  createdAt:Date;
+  updatedBy:string|null;
+  isDeleted:boolean;
+  status:string;
+  createdByUser:IUserDTO|undefined;
+}
 
 export interface IBrandDTO {
   id: string;

@@ -8,5 +8,6 @@ export const Routes = {
   Users: dashboard('/users'),
   Web:dashboard('/web'),
   Feedback:dashboard('/feedback'),
+  AboutUS:dashboard('/aboutUs'),
   Login: ('/')
 };

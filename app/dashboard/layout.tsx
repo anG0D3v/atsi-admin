@@ -7,7 +7,7 @@ import type { MenuProps } from 'antd';
 import { useRouter, usePathname } from 'next/navigation';
 import { type SubmitHandler, useForm } from 'react-hook-form';
 import { FormItem } from 'react-hook-form-antd';
-import { BsFillBoxSeamFill } from 'react-icons/bs';
+import { BsFillBoxSeamFill,BsFillInfoSquareFill } from 'react-icons/bs';
 import { FaUsers } from 'react-icons/fa6';
 import { MdOutlineEdit } from 'react-icons/md';
 import { PiSignOutBold } from 'react-icons/pi';
@@ -50,7 +50,8 @@ const items: MenuItem[] = [
   getItem('Users', '3', <FaUsers />),
   getItem('Blogs','4',<TbWorldWww />),
   getItem('Feedback','5',<VscFeedback />),
-  getItem('Sign Out', '6', <PiSignOutBold />),
+  getItem('About us','6',<BsFillInfoSquareFill />),
+  getItem('Sign Out', '7', <PiSignOutBold />),
 ];
 
 interface Props {
@@ -95,6 +96,7 @@ export default function RootLayout({ children }: Props) {
   };
   
   const onSelectMenu = useCallback((item: any) => {
+    console.log(item)
     switch (item?.key) {
       case '0':
         navigate.push(Routes.Brands);
@@ -115,6 +117,9 @@ export default function RootLayout({ children }: Props) {
           navigate.push(Routes.Feedback);
           break;
       case '6':
+        navigate.push(Routes.AboutUS);
+        break;
+      case '7':
         handleSignOut();
         break;
       default:
@@ -247,6 +252,8 @@ export default function RootLayout({ children }: Props) {
                   ? '4'
                   : currentPathname === Routes.Feedback
                   ? '5'
+                  : currentPathname === Routes.AboutUS
+                  ? '6'
                   : '0',
               ]}
               mode="inline"
