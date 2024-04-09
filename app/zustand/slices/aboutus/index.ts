@@ -212,9 +212,7 @@ interface AboutState {
                 customAlert(
                   'success',
                   MESSAGES.SUCCESS,
-                  response?.data?.data?.status === STATUS.AVAILABLE
-                    ? MESSAGES.RESTORED
-                    : MESSAGES.DELETED,
+                  MESSAGES.RESTORED,
                 );
               } else {
                 set((state) => ({
@@ -250,13 +248,7 @@ interface AboutState {
         : await AboutUsServices.setInActiveAbouts(payload)
         if (response.status === STATUS_CODES.OK && process) {
           if (!('message' in response.data)) {
-            customAlert(
-              'success',
-              MESSAGES.SUCCESS,
-              response?.data?.data?.status === STATUS.AVAILABLE
-                ? MESSAGES.RESTORED
-                : MESSAGES.DELETED,
-            );
+            customAlert('success', MESSAGES.SUCCESS, MESSAGES.UPDATE);
           } else {
             set((state) => ({
               ...state,

@@ -24,7 +24,7 @@ const AboutUsServices = {
         ),
     restoreAboutUs: async(data:any) =>
     await axiosInstance.put(
-        Api.ABOUTUS().DELETE_ABOUTUS,
+        Api.ABOUTUS().RESTORE_ABOUTUS,
         data
     ),
     setActiveAbouts:async(data:any) =>
