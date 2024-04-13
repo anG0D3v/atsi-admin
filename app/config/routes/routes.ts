@@ -9,5 +9,6 @@ export const Routes = {
   Web:dashboard('/web'),
   Feedback:dashboard('/feedback'),
   AboutUS:dashboard('/aboutUs'),
+  LandingPage:dashboard('/landingPage'),
   Login: ('/')
 };

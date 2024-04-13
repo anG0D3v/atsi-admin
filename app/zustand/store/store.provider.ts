@@ -44,7 +44,14 @@ export const {
   deleteAbouts,
   updateAbouts,
   restoreAbouts,
-  setInactiveActive
+  setInactiveActive,
+  fetchContent,
+  addContent,
+  deleteContent,
+  updateContent,
+  restoreContent,
+  deleteContentImg,
+  setInactiveActiveContent
 } = storeProvider;
 
 export { selector, storeProvider };

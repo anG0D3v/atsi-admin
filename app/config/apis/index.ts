@@ -60,6 +60,17 @@ const Api = {
     RESTORE_ABOUTUS: ApiEndpoint( base + '/restore'),
     ACTIVEABOUTS: ApiEndpoint(base + '/set-active'),
     INACTIVEABOUTS: ApiEndpoint(base + '/set-inactive')
+  }),
+
+  LANDINGPAGE: (base = '/landing-page') =>({
+    ALL: ApiEndpoint(base + '/all'),
+    ADD_CONTENT: ApiEndpoint(base + '/add'),
+    ACTIVECONTENT: ApiEndpoint(base + '/set-active'),
+    INACTIVECONTENT: ApiEndpoint(base + '/set-inactive'),
+    DELETE_IMAGES: ApiEndpoint( base + '/delete/images'),
+    DELETE_CONTENT: ApiEndpoint( base + '/delete'),
+    UPDATE_CONTENT: ApiEndpoint(base + '/update'),
+    RESTORE_CONTENT: ApiEndpoint( base + '/restore'),
   })
 
 };

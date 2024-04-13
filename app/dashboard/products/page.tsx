@@ -317,8 +317,6 @@ export default function page() {
     setValue('status', e.target.value);
   };
 
-
-
   // Functions
   const showModal = useCallback(
     (act: string, data?: any) => {

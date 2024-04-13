@@ -66,6 +66,21 @@ export interface IFeedback{
   product: IProductsDTO; 
 }
 
+export interface ILandingPage{
+  id?:string;
+  title: string;
+  content: string;
+  createdBy: string;
+  createdAt: Date;
+  updatedBy: string | null;
+  updatedAt: Date | null;
+  isDeleted: boolean;
+  status: string;
+  createdByUser:IUserDTO;
+  updatedByUser:IUserDTO|null;
+  landingPageImages:any[];
+}
+
 export interface IProductsDTO {
   id?: string;
   name: string;

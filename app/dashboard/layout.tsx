@@ -11,7 +11,7 @@ import { BsFillBoxSeamFill,BsFillInfoSquareFill } from 'react-icons/bs';
 import { FaUsers } from 'react-icons/fa6';
 import { MdOutlineEdit } from 'react-icons/md';
 import { PiSignOutBold } from 'react-icons/pi';
-import { TbBrandFramerMotion, TbCategoryFilled,TbWorldWww } from 'react-icons/tb';
+import { TbBrandFramerMotion, TbCategoryFilled,TbWorldWww,TbCarouselHorizontal } from 'react-icons/tb';
 import { VscFeedback } from 'react-icons/vsc';
 import { type z } from 'zod';
 import { CustomAvatar, CustomButton, CustomInput, CustomLabel, CustomModal } from '@/components';
@@ -51,7 +51,8 @@ const items: MenuItem[] = [
   getItem('Blogs','4',<TbWorldWww />),
   getItem('Feedback','5',<VscFeedback />),
   getItem('About us','6',<BsFillInfoSquareFill />),
-  getItem('Sign Out', '7', <PiSignOutBold />),
+  getItem('Landing Page','7',<TbCarouselHorizontal />),
+  getItem('Sign Out', '8', <PiSignOutBold />),
 ];
 
 interface Props {
@@ -120,6 +121,9 @@ export default function RootLayout({ children }: Props) {
         navigate.push(Routes.AboutUS);
         break;
       case '7':
+        navigate.push(Routes.LandingPage);
+        break;
+      case '8':
         handleSignOut();
         break;
       default:
@@ -254,6 +258,8 @@ export default function RootLayout({ children }: Props) {
                   ? '5'
                   : currentPathname === Routes.AboutUS
                   ? '6'
+                  : currentPathname === Routes.LandingPage
+                  ? '7'
                   : '0',
               ]}
               mode="inline"
