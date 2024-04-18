@@ -60,7 +60,6 @@ import {
 
 type ValidationSchema = z.infer<typeof productValidator>;
 
-
 type FileType = Blob;
 
 const getBase64 = async (file: FileType): Promise<string> =>
@@ -109,7 +108,7 @@ export default function page() {
   const [previewImage, setPreviewImage] = useState('');
   const [previewTitle, setPreviewTitle] = useState('');
   const [action, setAction] = useState(null);
-  const initialParams ={
+  const initialParams = {
     name: '',
     status: '',
     brandId: '',
@@ -117,7 +116,7 @@ export default function page() {
     isDeleted: false,
     isNewRelease: false,
     isSaleProduct: false,
-  }
+  };
   const [filter, setFilter] = useState(initialParams);
   const items: TabsProps['items'] = [
     {
@@ -258,7 +257,7 @@ export default function page() {
   const status = watch('status');
   const isSaleProduct = watch('isSaleProduct');
   const isNewRelease = watch('isNewRelease');
-  const listImg =  watch('oldimg')
+  const listImg = watch('oldimg');
   const { data: productsData, isLoading } = useQuery({
     queryKey: ['products', filter],
     queryFn: async () => await ProductsService.fetchAll(filter),
@@ -293,7 +292,7 @@ export default function page() {
         price: 0,
         isSaleProduct: false,
         images: [],
-        oldimg:[]
+        oldimg: [],
       });
       setSelectedImages([]);
       setSelectedRowKeys([]);
@@ -399,11 +398,11 @@ export default function page() {
       price: 0,
       isSaleProduct: false,
       images: [],
-      oldimg:[]
+      oldimg: [],
     });
     setSelectedRowKeys([]);
     setSelectedImages([]);
-  }, [ reset, setValue, setIsOpenModal]);
+  }, [reset, setValue, setIsOpenModal]);
 
   const onSubmit: SubmitHandler<ValidationSchema> = useCallback(
     (data) => {
@@ -459,9 +458,11 @@ export default function page() {
       file.preview = await getBase64(file.originFileObj as FileType);
     }
 
-    setPreviewImage(file.url || (file.preview ));
+    setPreviewImage(file.url || file.preview);
     setPreviewOpen(true);
-    setPreviewTitle(file.name || file.url.substring(file.url.lastIndexOf('/') + 1));
+    setPreviewTitle(
+      file.name || file.url.substring(file.url.lastIndexOf('/') + 1),
+    );
   };
   const handleImageSelect = (image: any) => {
     const selectedIndex = selectedImages.indexOf(image);
@@ -517,17 +518,22 @@ export default function page() {
               </div>
             </CustomUploader>
           </FormItem>
-          {(action === ACTIONS.EDIT && listImg.length > 0) && <div>
-          <p>List of Images:</p>
-          <Image.PreviewGroup
-            items={listImg?.map((item: { url: string; }) => process.env.BASE_IMAGE_URL + item.url)}
-          >
-            <Image
-              width={100}
-              src={process.env.BASE_IMAGE_URL + listImg[0]?.url}
-            />
-          </Image.PreviewGroup>
-          </div>}
+          {action === ACTIONS.EDIT && listImg.length > 0 && (
+            <div>
+              <p>List of Images:</p>
+              <Image.PreviewGroup
+                items={listImg?.map(
+                  (item: { url: string }) =>
+                    process.env.BASE_IMAGE_URL + item.url,
+                )}
+              >
+                <Image
+                  width={100}
+                  src={process.env.BASE_IMAGE_URL + listImg[0]?.url}
+                />
+              </Image.PreviewGroup>
+            </div>
+          )}
           <FormItem name="name" control={control}>
             <CustomInput
               size="large"
@@ -758,8 +764,8 @@ export default function page() {
     ...data,
     key: data.id,
   }));
-  const img = watch('images')
-  console.log(img)
+  const img = watch('images');
+  console.log(img);
   return (
     <div className="h-max">
       <div className="flex items-center justify-between">
@@ -809,7 +815,6 @@ export default function page() {
                 onChange={(value) => {
                   handleSelection({ value }, 'brandId');
                 }}
-                allowClear
                 optionLabelProp="label"
                 size="large"
                 className="w-52 min-w-60"
@@ -829,7 +834,6 @@ export default function page() {
                 }}
                 optionLabelProp="label"
                 size="large"
-                allowClear
                 className="w-52 min-w-60"
                 options={categories?.items?.map(
                   (option: { id: any; name: any }) => ({
@@ -872,7 +876,12 @@ export default function page() {
           children={renderModalContent()}
         />
       </div>
-      <Modal open={previewOpen} title={previewTitle} footer={null} onCancel={handleCancel}>
+      <Modal
+        open={previewOpen}
+        title={previewTitle}
+        footer={null}
+        onCancel={handleCancel}
+      >
         <CustomNextImage width={200} height={150} url={previewImage} />
       </Modal>
     </div>
