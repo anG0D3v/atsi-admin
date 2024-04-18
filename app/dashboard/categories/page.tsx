@@ -103,14 +103,26 @@ export default function page() {
       ),
     },
     {
-      key: 3,
-      dataIndex: 'isDeleted',
+      key: 2,
+      dataIndex: 'status',
       title: 'Status',
       render: (data: string, index: number) => (
         <CustomTag
           key={index}
-          children={!data ? 'Active' : 'Deleted'}
-          color={!data ? 'green' : 'error'}
+          children={data === 'Active' ? 'Active' : 'Unavailable'}
+          color={data === 'Active' ? 'green' : 'error'}
+        />
+      ),
+    },
+    {
+      key: 3,
+      dataIndex: 'isDeleted',
+      title: 'Deleted',
+      render: (data: string, index: number) => (
+        <CustomTag
+          key={index}
+          children={!data ? 'No' : 'Yes'}
+          color={!data ? 'error' : 'green'}
         />
       ),
     },
