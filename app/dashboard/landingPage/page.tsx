@@ -106,7 +106,7 @@ export default function page() {
         dataIndex: 'landingPageImages',
         title: 'Logo',
         render: (data: any, index: number) =>
-          data ? (
+          data.length > 0 ? (
             <Image.PreviewGroup
             items={data?.map((item:any) =>({
                 src :process.env.BASE_IMAGE_URL + item.url || ''
@@ -481,6 +481,7 @@ export default function page() {
       ...data,
       key:data.id
     }))
+    console.log(aboutData)
   return (
     <div className="">
       <div className="flex items-center justify-between">

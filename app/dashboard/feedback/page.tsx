@@ -244,7 +244,7 @@ export default function page() {
       dataIndex: 'rating',
       title: 'Rate',
       render: (data: any, index: number) => (
-        <Rate value={data} />
+          <Rate className='text-nowrap' value={data} />
       ),
     },
     {
@@ -252,7 +252,7 @@ export default function page() {
       dataIndex: 'content',
       title: 'Review',
       render: (data: any, index: number) => (
-        <span key={index}>{data}</span>
+        <span className='line-clamp-5' key={index}>{data}</span>
       ),
     },
     {
