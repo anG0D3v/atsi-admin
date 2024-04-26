@@ -54,7 +54,11 @@ export default function page() {
       label: 'Available',
     },
     {
-      key: STATUS.UNAVAILABLE,
+      key: 'Unavailable',
+      label: 'Unavailable',
+    },
+    {
+      key: 'Deleted',
       label: 'Deleted',
     },
   ];
@@ -63,7 +67,7 @@ export default function page() {
   const queryClient = useQueryClient();
   const [action, setAction] = useState<string>(ACTIONS.ADD);
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
-  const { handleSubmit, control, reset, setValue, getValues,watch } =
+  const { handleSubmit, control, reset, setValue, getValues, watch } =
     useForm<TValidationSchema>({
       defaultValues: {
         id: '',
@@ -72,13 +76,13 @@ export default function page() {
         status: '',
         createdBy: user?.info?.id,
         updatedBy: '',
-        brandsId:[]
+        brandsId: [],
       },
       resolver: zodResolver(categoriesValidator),
     });
 
   const categories = useStore(selector('categories'));
-  const brandsId = watch('brandsId')
+  const brandsId = watch('brandsId');
   const { data: categoriesData, isLoading } = useQuery({
     queryKey: ['categories', filter],
     queryFn: async () => await CategoriesServices.fetchAll(filter),
@@ -99,14 +103,26 @@ export default function page() {
       ),
     },
     {
-      key: 3,
-      dataIndex: 'isDeleted',
+      key: 2,
+      dataIndex: 'status',
       title: 'Status',
       render: (data: string, index: number) => (
         <CustomTag
           key={index}
-          children={!data ? 'Active' : 'Deleted'}
-          color={!data ? 'green' : 'error'}
+          children={data === 'Active' ? 'Active' : 'Unavailable'}
+          color={data === 'Active' ? 'green' : 'error'}
+        />
+      ),
+    },
+    {
+      key: 3,
+      dataIndex: 'isDeleted',
+      title: 'Deleted',
+      render: (data: string, index: number) => (
+        <CustomTag
+          key={index}
+          children={!data ? 'No' : 'Yes'}
+          color={!data ? 'error' : 'green'}
         />
       ),
     },
@@ -156,7 +172,12 @@ export default function page() {
             type="dashed"
             children={!data?.isDeleted ? 'Delete' : 'Restore'}
             danger={!data?.isDeleted}
-            onClick={() => showModal(!data?.isDeleted ? ACTIONS.DELETE : ACTIONS.RESTORE, data)}
+            onClick={() =>
+              showModal(
+                !data?.isDeleted ? ACTIONS.DELETE : ACTIONS.RESTORE,
+                data,
+              )
+            }
           />
         </div>
       ),
@@ -165,12 +186,12 @@ export default function page() {
 
   // Functions
   const onChangeTab = (key: string) => {
-    if(key === 'Deleted'){
+    if (key === 'Deleted') {
       setFilter((prevState) => ({
         ...prevState,
         isDeleted: true,
       }));
-    }else{
+    } else {
       setFilter((prevState) => ({
         ...prevState,
         status: key,
@@ -204,29 +225,40 @@ export default function page() {
       status: '',
       createdBy: user?.info?.id,
       updatedBy: '',
-      brandsId:[]
+      brandsId: [],
     });
-    setSelectedRowKeys([])
+    setSelectedRowKeys([]);
   }, []);
 
-  const showModal = useCallback((act?: string, data?: any) => {
-    setAction(act);
-    setOpen(true);
-    if (act === ACTIONS.EDIT || act === ACTIONS.DELETE || act === ACTIONS.RESTORE || act === ACTIONS.MULTIDELETE) {
-      setValue('id', data?.id);
-      setValue('name', data?.name, {
-        shouldValidate: true,
-        shouldDirty: true,
-      });
-      setValue('description', data?.description, {
-        shouldValidate: true,
-        shouldDirty: true,
-      });
-      setValue('brandsId', data?.Brands.map((item: { id: any; }) => item.id));
-      setValue('updatedBy', user?.info?.id);
-      setValue('status', data?.status);
-    }
-  }, [setValue,action]);
+  const showModal = useCallback(
+    (act?: string, data?: any) => {
+      setAction(act);
+      setOpen(true);
+      if (
+        act === ACTIONS.EDIT ||
+        act === ACTIONS.DELETE ||
+        act === ACTIONS.RESTORE ||
+        act === ACTIONS.MULTIDELETE
+      ) {
+        setValue('id', data?.id);
+        setValue('name', data?.name, {
+          shouldValidate: true,
+          shouldDirty: true,
+        });
+        setValue('description', data?.description, {
+          shouldValidate: true,
+          shouldDirty: true,
+        });
+        setValue(
+          'brandsId',
+          data?.Brands.map((item: { id: any }) => item.id),
+        );
+        setValue('updatedBy', user?.info?.id);
+        setValue('status', data?.status);
+      }
+    },
+    [setValue, action],
+  );
 
   const categoryMutation = useMutation({
     mutationFn:
@@ -234,7 +266,7 @@ export default function page() {
         ? async (info: object) => await addCategory(info)
         : action === ACTIONS.EDIT
         ? async (info: object) => await updateCategory(info)
-        : (action === ACTIONS.DELETE || action === ACTIONS.MULTIDELETE) 
+        : action === ACTIONS.DELETE || action === ACTIONS.MULTIDELETE
         ? async (info: object) => await deleteCategory(info)
         : async (info: object) => restoreCategory(info),
     onSuccess: (response) => {
@@ -247,7 +279,7 @@ export default function page() {
         createdBy: user?.info?.id,
         updatedBy: '',
       });
-      setSelectedRowKeys([])
+      setSelectedRowKeys([]);
       queryClient.invalidateQueries({ queryKey: ['categories'] });
     },
     onError: (error) => {
@@ -259,26 +291,25 @@ export default function page() {
     (data) => {
       const formData = new FormData();
       if (action === ACTIONS.ADD) {
-        formData.append('name',data?.name)
-        formData.append('description',data?.description)
-        formData.append('createdBy',user?.info?.id)
-        data?.brandsId.map(item => formData.append('brandIds[]',item))
-        delete data?.updatedBy
-        delete data?.id
-      }else if (action === ACTIONS.EDIT) {
-        formData.append('name',data?.name)
-        formData.append('description',data?.description)
+        formData.append('name', data?.name);
+        formData.append('description', data?.description);
+        formData.append('createdBy', user?.info?.id);
+        data?.brandsId.map((item) => formData.append('brandIds[]', item));
+        delete data?.updatedBy;
+        delete data?.id;
+      } else if (action === ACTIONS.EDIT) {
+        formData.append('name', data?.name);
+        formData.append('description', data?.description);
         formData.append('id', data?.id);
         formData.append('updatedBy', user?.info?.id);
-        data?.brandsId.map(item => formData.append('brandIds[]',item));
-        delete data?.createdBy
-        
-      }else if(action === ACTIONS.DELETE || action === ACTIONS.RESTORE){
+        data?.brandsId.map((item) => formData.append('brandIds[]', item));
+        delete data?.createdBy;
+      } else if (action === ACTIONS.DELETE || action === ACTIONS.RESTORE) {
         formData.append('updatedBy', data?.updatedBy);
-        formData.append('ids[]',data?.id)
-      }else if(action === ACTIONS.MULTIDELETE){
+        formData.append('ids[]', data?.id);
+      } else if (action === ACTIONS.MULTIDELETE) {
         formData.append('updatedBy', user?.info?.id);
-        selectedRowKeys.map(item =>formData.append('ids[]',item))
+        selectedRowKeys.map((item) => formData.append('ids[]', item));
       }
       categoryMutation.mutate(formData);
     },
@@ -288,7 +319,9 @@ export default function page() {
   // Rendered Components
   const renderModalContent = () => (
     <Form onFinish={handleSubmit(onSubmit)} className="mt-5">
-      {(action !== ACTIONS.DELETE && action !== ACTIONS.RESTORE && action !== ACTIONS.MULTIDELETE) ? (
+      {action !== ACTIONS.DELETE &&
+      action !== ACTIONS.RESTORE &&
+      action !== ACTIONS.MULTIDELETE ? (
         <>
           <FormItem name="name" control={control}>
             <CustomInput
@@ -308,7 +341,7 @@ export default function page() {
               renderText="name"
               renderValue="id"
               renderKey="id"
-              mode='multiple'
+              mode="multiple"
               // status={
               //   formik.touched.position && Boolean(formik.errors.position)
               //     ? 'error'
@@ -335,9 +368,8 @@ export default function page() {
             children={
               <span>
                 {' '}
-                Are you sure? Do you really want to{' '}
-                delete{' '}
-                all selected categories{' '}
+                Are you sure? Do you really want to delete all selected
+                categories{' '}
               </span>
             }
             classes="text-lg"
@@ -390,7 +422,7 @@ export default function page() {
     </Form>
   );
   const onSelectChange = (selectedRows: any) => {
-    console.log(selectedRows)
+    console.log(selectedRows);
     setSelectedRowKeys(selectedRows);
   };
 
@@ -398,14 +430,14 @@ export default function page() {
     selectedRowKeys,
     onChange: onSelectChange,
     getCheckboxProps: (record: any) => ({
-      disabled: record.isDeleted === true, 
+      disabled: record.isDeleted === true,
     }),
   };
-  const categoryData = categories?.items?.map((data: { id: any; }) => ({
+  const categoryData = categories?.items?.map((data: { id: any }) => ({
     ...data,
-    key:data.id
-  }))
-  console.log(brandsId)
+    key: data.id,
+  }));
+  console.log(brandsId);
   return (
     <div>
       <div className="flex items-center justify-between">
@@ -438,25 +470,24 @@ export default function page() {
       <div className="mt-14 space-y-5">
         <Tabs defaultActiveKey="0" items={items} onChange={onChangeTab} />
         <div className="flex relative w-full">
-        {selectedRowKeys.length > 0 &&
+          {selectedRowKeys.length > 0 && (
             <CustomButton
-            icon={<MdDelete />}
-            size="large"
-            danger
-            children="Delete Selected"
-            onClick={() => showModal(ACTIONS.MULTIDELETE)}
-          />
-          }
-        <div className="text-right w-full">
-          <CustomInput
-            placeholder="Search brand name"
-            size="large"
-            classes="w-1/4"
-            name="name"
-            onChange={useDebounce(onSetFilter)}
-          />
-        </div>
-
+              icon={<MdDelete />}
+              size="large"
+              danger
+              children="Delete Selected"
+              onClick={() => showModal(ACTIONS.MULTIDELETE)}
+            />
+          )}
+          <div className="text-right w-full">
+            <CustomInput
+              placeholder="Search brand name"
+              size="large"
+              classes="w-1/4"
+              name="name"
+              onChange={useDebounce(onSetFilter)}
+            />
+          </div>
         </div>
         <CustomTable
           columns={columns}
