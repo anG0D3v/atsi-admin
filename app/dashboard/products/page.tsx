@@ -641,7 +641,7 @@ export default function page() {
             <Flex vertical gap="middle">
               <CustomRadio
                 onChange={(e) => onChange(e)}
-                choices={['Available', 'Unavailable', 'Out of Stock']}
+                choices={['Available', 'Unavailable', 'Out_of_Stock']}
                 value={status}
               />
             </Flex>
