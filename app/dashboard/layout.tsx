@@ -9,6 +9,7 @@ import { type SubmitHandler, useForm } from 'react-hook-form';
 import { FormItem } from 'react-hook-form-antd';
 import { BsFillBoxSeamFill,BsFillInfoSquareFill } from 'react-icons/bs';
 import { FaUsers } from 'react-icons/fa6';
+import { FiLink } from 'react-icons/fi';
 import { MdOutlineEdit } from 'react-icons/md';
 import { PiSignOutBold } from 'react-icons/pi';
 import { TbBrandFramerMotion, TbCategoryFilled,TbWorldWww,TbCarouselHorizontal } from 'react-icons/tb';
@@ -52,7 +53,8 @@ const items: MenuItem[] = [
   getItem('Feedback','5',<VscFeedback />),
   getItem('About us','6',<BsFillInfoSquareFill />),
   getItem('Landing Page','7',<TbCarouselHorizontal />),
-  getItem('Sign Out', '8', <PiSignOutBold />),
+  getItem('Social Media','8',<FiLink />),
+  getItem('Sign Out', '9', <PiSignOutBold />),
 ];
 
 interface Props {
@@ -124,6 +126,9 @@ export default function RootLayout({ children }: Props) {
         navigate.push(Routes.LandingPage);
         break;
       case '8':
+        navigate.push(Routes.SocialMedia);
+        break;
+      case '9':
         handleSignOut();
         break;
       default:
@@ -260,6 +265,8 @@ export default function RootLayout({ children }: Props) {
                   ? '6'
                   : currentPathname === Routes.LandingPage
                   ? '7'
+                  : currentPathname === Routes.SocialMedia
+                  ? '8'
                   : '0',
               ]}
               mode="inline"

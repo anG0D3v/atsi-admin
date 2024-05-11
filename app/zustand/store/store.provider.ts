@@ -51,7 +51,13 @@ export const {
   updateContent,
   restoreContent,
   deleteContentImg,
-  setInactiveActiveContent
+  setInactiveActiveContent,
+  fetchSocialLinks,
+  addSocialLinks,
+  deleteSocialLinks,
+  updateSocialLinks,
+  restoreSocialLinks,
+  setInactiveActiveLinks
 } = storeProvider;
 
 export { selector, storeProvider };

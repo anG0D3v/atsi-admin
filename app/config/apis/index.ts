@@ -62,6 +62,16 @@ const Api = {
     INACTIVEABOUTS: ApiEndpoint(base + '/set-inactive')
   }),
 
+  SOCIALMEDIA: (base = '/social-media-links') => ({
+    ALL: ApiEndpoint(base + '/all'),
+    ADD_SOCIALMEDIA: ApiEndpoint(base + '/add'),
+    UPDATE_SOCIALMEDIA: ApiEndpoint(base + '/update'),
+    DELETE_SOCIALMEDIA: ApiEndpoint( base + '/delete'),
+    RESTORE_SOCIALMEDIA: ApiEndpoint( base + '/restore'),
+    ACTIVESOCIALMEDIA: ApiEndpoint(base + '/set-active'),
+    INACTIVESOCIALMEDIA: ApiEndpoint(base + '/set-inactive')
+  }),
+
   LANDINGPAGE: (base = '/landing-page') =>({
     ALL: ApiEndpoint(base + '/all'),
     ADD_CONTENT: ApiEndpoint(base + '/add'),

@@ -10,5 +10,6 @@ export const Routes = {
   Feedback:dashboard('/feedback'),
   AboutUS:dashboard('/aboutUs'),
   LandingPage:dashboard('/landingPage'),
+  SocialMedia:dashboard('/socialMedia'),
   Login: ('/')
 };
