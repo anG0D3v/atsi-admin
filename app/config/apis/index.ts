@@ -8,7 +8,9 @@ const Api = {
     DELETE_USER: ApiEndpoint(base + '/delete'),
     ADD_USER: ApiEndpoint(base + '/add'),
     UPDATE_USER: ApiEndpoint(base + '/update'),
-    RESTORE_USER: ApiEndpoint(base + '/restore')
+    RESTORE_USER: ApiEndpoint(base + '/restore'),
+    FORGOT_PASSWORD: ApiEndpoint('/email-content/reset-password'),
+    RESET_PASSWORD: ApiEndpoint(base + '/update-password')
   }),
 
   BRAND: (base = '/brands') => ({

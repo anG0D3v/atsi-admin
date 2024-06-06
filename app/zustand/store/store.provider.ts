@@ -57,7 +57,8 @@ export const {
   deleteSocialLinks,
   updateSocialLinks,
   restoreSocialLinks,
-  setInactiveActiveLinks
+  setInactiveActiveLinks,
+  saveCodes
 } = storeProvider;
 
 export { selector, storeProvider };

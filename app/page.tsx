@@ -19,6 +19,7 @@ type ValidationSchema = z.infer<typeof authValidator>;
 
 export default function Page() {
   // const session = useSession();
+  const router = useRouter()
   const user = useStore(selector('user'));
   const { handleSubmit, control } = useForm<ValidationSchema>({
     resolver: zodResolver(authValidator),
@@ -104,7 +105,7 @@ export default function Page() {
               classes=""
               type="link"
               children="Forgot Password?"
-              onClick={() => {}}
+              onClick={() => router.push('/forgotPassword')}
             />
           </Form>
         </div>

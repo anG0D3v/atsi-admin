@@ -3,8 +3,10 @@ import { type StateCreator } from 'zustand/vanilla';
 import { UserServices } from '@/services';
 
 interface UserState {
-  loading: boolean;
-  info: object;
+  loading?: boolean;
+  info?: object;
+  code?:any;
+  otp?:any
   responseMsg: string;
 }
 export interface UserSlice {
@@ -13,6 +15,7 @@ export interface UserSlice {
   getUserByEmail: (payload: string) => void;
   saveUserInfo: (payload: any) => void;
   logout: () => void;
+  saveCodes:(payload:any) => void;
 }
 
 const initialState: UserState = {
@@ -116,6 +119,17 @@ const createUserSlice: StateCreator<UserSlice> = (set) => ({
       console.error('Logout error:', error);
     }
   },
+  saveCodes:(payload:any) =>{
+    set((state) => ({
+      ...state,
+      user: {
+        ...state.user,
+        otp: payload.otp,
+        code:payload.code,
+        responseMsg: '',
+      },
+    }));
+  }
 });
 
 export default createUserSlice;
